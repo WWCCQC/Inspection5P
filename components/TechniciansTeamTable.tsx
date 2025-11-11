@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
+import * as XLSX from 'xlsx';
 import React from 'react';
 
 type Technician = {
@@ -24,6 +25,11 @@ type GroupedRow = {
 };
 
 const TechniciansTeamTable = () => {
+  const [providerFilter, setProviderFilter] = React.useState('');
+  const [rsmFilter, setRsmFilter] = React.useState('');
+  const [depotCodeFilter, setDepotCodeFilter] = React.useState('');
+  const [depotNameFilter, setDepotNameFilter] = React.useState('');
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['technicians-team'],
     queryFn: async () => {
@@ -150,6 +156,50 @@ const TechniciansTeamTable = () => {
     });
   }, [data]);
 
+  // Filter grouped data based on filter values
+  const filteredGroupedData: GroupedRow[] = React.useMemo(() => {
+    return groupedData.filter(row => {
+      if (providerFilter && row.provider !== providerFilter) return false;
+      if (rsmFilter && row.rsm !== rsmFilter) return false;
+      if (depotCodeFilter && row.depot_code !== depotCodeFilter) return false;
+      if (depotNameFilter && row.depot_name !== depotNameFilter) return false;
+      return true;
+    });
+  }, [groupedData, providerFilter, rsmFilter, depotCodeFilter, depotNameFilter]);
+
+  // Get unique values for filters
+  const uniqueProviders = React.useMemo(() => {
+    return Array.from(new Set(groupedData.map(row => row.provider).filter(Boolean)));
+  }, [groupedData]);
+
+  const uniqueRsms = React.useMemo(() => {
+    return Array.from(new Set(groupedData.map(row => row.rsm).filter(Boolean)));
+  }, [groupedData]);
+
+  const uniqueDepotCodes = React.useMemo(() => {
+    return Array.from(new Set(groupedData.map(row => row.depot_code).filter(Boolean)));
+  }, [groupedData]);
+
+  const uniqueDepotNames = React.useMemo(() => {
+    return Array.from(new Set(groupedData.map(row => row.depot_name).filter(Boolean)));
+  }, [groupedData]);
+
+  // Export to Excel
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredGroupedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Technicians Team');
+    XLSX.writeFile(wb, `technicians-team-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // Clear filters
+  const clearFilters = () => {
+    setProviderFilter('');
+    setRsmFilter('');
+    setDepotCodeFilter('');
+    setDepotNameFilter('');
+  };
+
   if (isLoading) return <div className="text-center py-4">Loading…</div>;
   if (error) {
     console.error('Query error:', error);
@@ -212,9 +262,159 @@ const TechniciansTeamTable = () => {
 
   return (
     <div className="bg-white rounded-lg border shadow-sm overflow-hidden mb-6">
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Technicians Team</h3>
+      {/* Header with Filter */}
+      <div 
+        style={{
+          padding: '12px 16px',
+          backgroundColor: '#5c6bc0',
+          width: '100%',
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <h3 style={{
+          margin: 0,
+          fontSize: '16px',
+          fontWeight: '600',
+          color: 'white',
+          minWidth: 'fit-content',
+        }}>
+          Technicians Team
+        </h3>
+
+        {/* Provider Filter */}
+        <select
+          value={providerFilter}
+          onChange={(e) => setProviderFilter(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '13px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            outline: 'none',
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            color: '#333',
+          }}
+        >
+          <option value="">Provider</option>
+          {uniqueProviders.sort().map(provider => (
+            <option key={provider} value={provider || ''}>{provider || '-'}</option>
+          ))}
+        </select>
+
+        {/* RSM Filter */}
+        <select
+          value={rsmFilter}
+          onChange={(e) => setRsmFilter(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '13px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            outline: 'none',
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            color: '#333',
+          }}
+        >
+          <option value="">RSM</option>
+          {uniqueRsms.sort().map(rsm => (
+            <option key={rsm} value={rsm || ''}>{rsm || '-'}</option>
+          ))}
+        </select>
+
+        {/* Depot Code Filter */}
+        <select
+          value={depotCodeFilter}
+          onChange={(e) => setDepotCodeFilter(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '13px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            outline: 'none',
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            color: '#333',
+          }}
+        >
+          <option value="">Depot Code</option>
+          {uniqueDepotCodes.sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(code => (
+            <option key={code} value={code || ''}>{code || '-'}</option>
+          ))}
+        </select>
+
+        {/* Depot Name Filter */}
+        <select
+          value={depotNameFilter}
+          onChange={(e) => setDepotNameFilter(e.target.value)}
+          style={{
+            padding: '6px 10px',
+            fontSize: '13px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            outline: 'none',
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            color: '#333',
+          }}
+        >
+          <option value="">Depot Name</option>
+          {uniqueDepotNames.sort().map(name => (
+            <option key={name} value={name || ''}>{name || '-'}</option>
+          ))}
+        </select>
+
+        {/* Clear Button */}
+        <button
+          onClick={clearFilters}
+          style={{
+            padding: '6px 12px',
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s ease',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a6268'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6c757d'}
+        >
+          การล้างค่า
+        </button>
+
+        {/* Export Button */}
+        <button
+          onClick={exportToExcel}
+          style={{
+            marginLeft: 'auto',
+            padding: '6px 12px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            transition: 'background-color 0.2s ease',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+        >
+          📊 Export Excel
+        </button>
       </div>
+
       <div className="overflow-x-auto">
         <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
           <thead>
@@ -238,7 +438,7 @@ const TechniciansTeamTable = () => {
             </tr>
           </thead>
           <tbody>
-            {groupedData.map((row, rowIndex) => {
+            {filteredGroupedData.map((row, rowIndex) => {
               const percentActual = row.count > 0 ? ((row.actual / row.count) * 100).toFixed(2) : '0.00';
               const percentPending = row.count > 0 ? ((row.pending / row.count) * 100).toFixed(2) : '0.00';
               const percentActualNum = parseFloat(percentActual);
@@ -287,7 +487,7 @@ const TechniciansTeamTable = () => {
         </table>
       </div>
       <div className="px-4 py-3 border-t bg-gray-50 text-sm text-gray-700">
-        รวม {groupedData.length} ทีม
+        แสดง {filteredGroupedData.length} ทีม จากทั้งหมด {groupedData.length} ทีม
       </div>
     </div>
   );

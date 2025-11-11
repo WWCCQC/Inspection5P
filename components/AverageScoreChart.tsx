@@ -31,8 +31,8 @@ const AverageScoreChart = () => {
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['averageScoreByPillar'],
     queryFn: async () => {
-      // ดึงข้อมูล P และ Score จากตาราง 5p
-      let allData: InspectionData[] = [];
+      // ดึงข้อมูล P, Score และ Project จากตาราง 5p
+      let allData: any[] = [];
       let from = 0;
       const pageSize = 1000;
       
@@ -40,14 +40,14 @@ const AverageScoreChart = () => {
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('P, Score')
+          .select('P, Score, Project')
           .range(from, from + pageSize - 1);
         
         if (error) throw new Error(error.message);
         
         if (!data || data.length === 0) break;
         
-        allData = [...allData, ...(data as InspectionData[])];
+        allData = [...allData, ...(data as any[])];
         
         if (data.length < pageSize) break;
         
@@ -58,6 +58,9 @@ const AverageScoreChart = () => {
       const groupedData: Record<string, number[]> = {};
       
       allData.forEach((item) => {
+        // Filter for Track C only
+        if (item.Project !== 'Track C') return;
+        
         if (item.P && item.Score) {
           const score = parseFloat(item.Score);
           

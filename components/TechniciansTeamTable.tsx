@@ -7,77 +7,116 @@ import React from 'react';
 type Technician = {
   tech_id: string;
   provider: string | null;
-  RSM: string | null;
+  rsm: string | null;
   depot_code: string | null;
   depot_name: string | null;
   workgroup_status: string | null;
+};
+
+type GroupedRow = {
+  provider: string | null;
+  rsm: string | null;
+  depot_code: string;
+  depot_name: string | null;
+  count: number;
 };
 
 const TechniciansTeamTable = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['technicians-team'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('technicians')
-        .select('tech_id, provider, RSM, depot_code, depot_name, workgroup_status')
-        .eq('workgroup_status', 'หัวหน้า');
+      let allData: Technician[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
 
-      if (error) throw error;
+      // Fetch all data with pagination
+      while (hasMore) {
+        const { data: techData, error } = await supabase
+          .from('technicians')
+          .select('tech_id, provider, rsm, depot_code, depot_name, workgroup_status')
+          .range(page * pageSize, (page + 1) * pageSize - 1);
 
-      // Filter out excluded depot codes
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        if (!techData || techData.length === 0) {
+          hasMore = false;
+        } else {
+          allData = [...allData, ...(techData as Technician[])];
+          page++;
+        }
+      }
+
+      console.log('Total fetched technicians data:', allData.length);
+
+      // Filter for workgroup_status containing "หัวหน้า" and exclude depot codes
       const excludedDepotCodes = ['PTT1-38', 'WW-BM-0093', 'WW-CR-1309'];
-      return (data as Technician[]).filter(
-        (item) => !excludedDepotCodes.includes(item.depot_code || '')
-      );
+      const filtered = allData
+        .filter(item => item.workgroup_status && item.workgroup_status.includes('หัวหน้า'))
+        .filter(item => !excludedDepotCodes.includes(item.depot_code || ''));
+      
+      console.log('Filtered data:', filtered.length, 'records');
+      return filtered;
     },
   });
 
-  if (isLoading) return <div className="text-center py-4">Loading…</div>;
-  if (error) return <div className="text-red-600 py-4">Error loading data</div>;
-
   // Group by depot_code and count unique tech_id
-  const groupedData = React.useMemo(() => {
-    if (!data) return [];
+  const groupedData: GroupedRow[] = React.useMemo(() => {
+    if (!data || data.length === 0) return [];
 
-    const groups = new Map<
-      string,
-      {
-        provider: string | null;
-        RSM: string | null;
-        depot_code: string;
-        depot_name: string | null;
-        count: number;
-      }
-    >();
+    const groups = new Map<string, GroupedRow>();
 
     data.forEach((tech) => {
       const key = tech.depot_code || '';
       if (!groups.has(key)) {
+        // Count unique tech_id for this depot_code
+        const techIdsForDepot = data
+          .filter((t) => t.depot_code === key)
+          .map((t) => t.tech_id);
+        
         groups.set(key, {
           provider: tech.provider,
-          RSM: tech.RSM,
+          rsm: tech.rsm,
           depot_code: tech.depot_code || '-',
           depot_name: tech.depot_name,
-          count: 0,
+          count: new Set(techIdsForDepot).size,
         });
       }
-      // Count unique tech_id per depot_code
-      const group = groups.get(key)!;
-      const techIds = data
-        .filter((t) => t.depot_code === key)
-        .map((t) => t.tech_id);
-      group.count = new Set(techIds).size;
     });
 
-    return Array.from(groups.values());
+    // Sort by rsm from low to high, then by depot_code alphanumerically
+    return Array.from(groups.values()).sort((a, b) => {
+      const rsmA = a.rsm ? parseInt(a.rsm.replace(/[^\d]/g, ''), 10) : 0;
+      const rsmB = b.rsm ? parseInt(b.rsm.replace(/[^\d]/g, ''), 10) : 0;
+      
+      if (rsmA !== rsmB) {
+        return rsmA - rsmB;
+      }
+      
+      // If rsm is the same, sort by depot_code using natural sort
+      const depotA = a.depot_code || '';
+      const depotB = b.depot_code || '';
+      
+      // Natural sort comparison
+      return depotA.localeCompare(depotB, 'en', { numeric: true });
+    });
   }, [data]);
 
+  if (isLoading) return <div className="text-center py-4">Loading…</div>;
+  if (error) {
+    console.error('Query error:', error);
+    return <div className="text-red-600 py-4">Error loading data: {(error as any)?.message}</div>;
+  }
+
   const columns = [
-    { header: 'Provider', key: 'provider' },
-    { header: 'RSM', key: 'RSM' },
-    { header: 'Depot Code', key: 'depot_code' },
-    { header: 'Depot Name', key: 'depot_name' },
-    { header: 'Technician Team (Total)', key: 'count' },
+    { header: 'Provider', key: 'provider' as const },
+    { header: 'RSM', key: 'rsm' as const },
+    { header: 'Depot Code', key: 'depot_code' as const },
+    { header: 'Depot Name', key: 'depot_name' as const },
+    { header: 'Technician Team (Total)', key: 'count' as const },
   ];
 
   return (
@@ -120,7 +159,7 @@ const TechniciansTeamTable = () => {
                       border: '1px solid #eee',
                     }}
                   >
-                    {row[column.key as keyof typeof row] || '-'}
+                    {row[column.key] || '-'}
                   </td>
                 ))}
               </tr>

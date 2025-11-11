@@ -35,10 +35,12 @@ type Row5P = {
 function DataTableComponent({ data }: { data: Row5P[] }) {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [companyCodeFilter, setCompanyCodeFilter] = React.useState("");
   const [companyNameFilter, setCompanyNameFilter] = React.useState("");
   const [rsmFilter, setRsmFilter] = React.useState("");
   const [scoreFilter, setScoreFilter] = React.useState("");
+  const [siteIdFilter, setSiteIdFilter] = React.useState("");
+  const [provinceFilter, setProvinceFilter] = React.useState("");
+  const [typeOfWorkFilter, setTypeOfWorkFilter] = React.useState("");
   const [searchBorderColor, setSearchBorderColor] = React.useState("#e5e7eb");
 
   const rows = data;
@@ -75,11 +77,6 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       );
     }
     
-    // Company Code filter
-    if (companyCodeFilter) {
-      filtered = filtered.filter(row => row.Company_Code === companyCodeFilter);
-    }
-    
     // Company Name filter
     if (companyNameFilter) {
       filtered = filtered.filter(row => row.Company_Name === companyNameFilter);
@@ -95,8 +92,23 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       filtered = filtered.filter(row => row.Score === scoreFilter);
     }
     
+    // Site_ID/SOS_No. filter
+    if (siteIdFilter) {
+      filtered = filtered.filter(row => row["Site_ID/SOS_No."] === siteIdFilter);
+    }
+    
+    // Province filter
+    if (provinceFilter) {
+      filtered = filtered.filter(row => row.Province === provinceFilter);
+    }
+    
+    // Type of work filter
+    if (typeOfWorkFilter) {
+      filtered = filtered.filter(row => row["Type of work"] === typeOfWorkFilter);
+    }
+    
     return filtered;
-  }, [rows, searchTerm, companyCodeFilter, companyNameFilter, rsmFilter, scoreFilter]);
+  }, [rows, searchTerm, companyNameFilter, rsmFilter, scoreFilter, siteIdFilter, provinceFilter, typeOfWorkFilter]);
 
   // Pagination
   const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
@@ -104,20 +116,34 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   const paginatedRows = filteredRows.slice(startIndex, startIndex + rowsPerPage);
 
   // Get unique values for filters
-  const uniqueCompanyCodes = React.useMemo(() => {
-    return Array.from(new Set(rows.map(row => row?.Company_Code).filter(Boolean)));
-  }, [rows]);
-  
   const uniqueCompanyNames = React.useMemo(() => {
-    return Array.from(new Set(rows.map(row => row?.Company_Name).filter(Boolean)));
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.Company_Name).filter(Boolean)));
   }, [rows]);
   
   const uniqueRSMs = React.useMemo(() => {
-    return Array.from(new Set(rows.map(row => row?.RSM).filter(Boolean)));
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.RSM).filter(Boolean)));
   }, [rows]);
 
   const uniqueScores = React.useMemo(() => {
-    return Array.from(new Set(rows.map(row => row?.Score).filter(Boolean)));
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.Score).filter(Boolean)));
+  }, [rows]);
+
+  const uniqueSiteIds = React.useMemo(() => {
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.["Site_ID/SOS_No."]).filter(Boolean)));
+  }, [rows]);
+
+  const uniqueProvinces = React.useMemo(() => {
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.Province).filter(Boolean)));
+  }, [rows]);
+
+  const uniqueTypeOfWorks = React.useMemo(() => {
+    const trackRolloutRows = rows.filter(row => row.Project === 'Track Rollout');
+    return Array.from(new Set(trackRolloutRows.map(row => row?.["Type of work"]).filter(Boolean)));
   }, [rows]);
 
   // Export to Excel function
@@ -187,27 +213,6 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             }}
           />
 
-          {/* Company Code Filter */}
-          <select
-            value={companyCodeFilter}
-            onChange={(e) => setCompanyCodeFilter(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              fontSize: '14px',
-              border: '1px solid #ccc',
-              borderRadius: '6px',
-              outline: 'none',
-              cursor: 'pointer',
-              backgroundColor: 'white',
-              color: '#333'
-            }}
-          >
-            <option value="">Company Code</option>
-            {uniqueCompanyCodes.map(code => (
-              <option key={code} value={code}>{code}</option>
-            ))}
-          </select>
-
           {/* Company Name Filter */}
           <select
             value={companyNameFilter}
@@ -268,6 +273,69 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             <option value="">Score</option>
             {uniqueScores.map(score => (
               <option key={score} value={score}>{score}</option>
+            ))}
+          </select>
+
+          {/* Site_ID/SOS_No. Filter */}
+          <select
+            value={siteIdFilter}
+            onChange={(e) => setSiteIdFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Site_ID/SOS_No.</option>
+            {uniqueSiteIds.map(siteId => (
+              <option key={siteId} value={siteId}>{siteId}</option>
+            ))}
+          </select>
+
+          {/* Province Filter */}
+          <select
+            value={provinceFilter}
+            onChange={(e) => setProvinceFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Province</option>
+            {uniqueProvinces.map(province => (
+              <option key={province} value={province}>{province}</option>
+            ))}
+          </select>
+
+          {/* Type of work Filter */}
+          <select
+            value={typeOfWorkFilter}
+            onChange={(e) => setTypeOfWorkFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Type of work</option>
+            {uniqueTypeOfWorks.map(typeOfWork => (
+              <option key={typeOfWork} value={typeOfWork}>{typeOfWork}</option>
             ))}
           </select>
 

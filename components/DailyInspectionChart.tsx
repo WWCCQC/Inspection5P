@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 interface InspectionData {
   Date: string;
-  Technician_Code: string;
+  Technician_Name: string;
 }
 
 interface ChartData {
@@ -14,22 +14,26 @@ interface ChartData {
   count: number;
 }
 
-const DailyInspectionChart = () => {
+interface DailyInspectionChartProps {
+  project?: string;
+}
+
+const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps) => {
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['dailyInspections'],
+    queryKey: ['dailyInspections', project],
     queryFn: async () => {
-      const { data, error } = await supabase.from('5p').select('Date, Technician_Code, Project');
+      const { data, error } = await supabase.from('5p').select('Date, Technician_Name, Project');
       
       if (error) throw new Error(error.message);
       
-      // Group by date and count unique technician codes
+      // Group by date and count unique technician names
       const groupedData: Record<string, Set<string>> = {};
       
       (data as any[]).forEach((item) => {
-        // Filter for Track C only
-        if (item.Project !== 'Track C') return;
+        // Filter for specified project
+        if (item.Project !== project) return;
         
-        if (item.Date && item.Technician_Code) {
+        if (item.Date && item.Technician_Name) {
           // Parse date and format as DD/MM/YYYY (AD/Gregorian calendar)
           const dateObj = new Date(item.Date);
           const day = String(dateObj.getDate()).padStart(2, '0');
@@ -37,15 +41,15 @@ const DailyInspectionChart = () => {
           const year = dateObj.getFullYear();
           const formattedDate = `${day}/${month}/${year}`;
           
-          // Use Set to store unique technician codes
+          // Use Set to store unique technician names
           if (!groupedData[formattedDate]) {
             groupedData[formattedDate] = new Set();
           }
-          groupedData[formattedDate].add(item.Technician_Code);
+          groupedData[formattedDate].add(item.Technician_Name);
         }
       });
       
-      // Convert to array with count of unique technician codes
+      // Convert to array with count of unique technician names
       const chartArray: ChartData[] = Object.entries(groupedData).map(([date, technicianSet]) => ({
         date,
         count: technicianSet.size,

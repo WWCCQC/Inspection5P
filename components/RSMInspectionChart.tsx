@@ -15,9 +15,13 @@ interface ChartData {
   count: number;
 }
 
-const RSMInspectionChart = () => {
+interface RSMInspectionChartProps {
+  project?: string;
+}
+
+const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) => {
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['rsmInspections'],
+    queryKey: ['rsmInspections', project],
     queryFn: async () => {
       const { data, error } = await supabase.from('5p').select('RSM, Technician_Code, Date, Project');
       
@@ -27,8 +31,8 @@ const RSMInspectionChart = () => {
       const groupedData: Record<string, Set<string>> = {};
       
       (data as any[]).forEach((item) => {
-        // Filter for Track C only
-        if (item.Project !== 'Track C') return;
+        // Filter for specified project
+        if (item.Project !== project) return;
         
         if (item.RSM && item.Technician_Code && item.Date) {
           // Format date as DD/MM/YYYY

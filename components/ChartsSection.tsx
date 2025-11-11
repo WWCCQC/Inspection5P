@@ -13,18 +13,21 @@ const ChartsSection = () => {
     return null;
   }
 
+  // Determine which project based on pathname
+  const project = pathname === '/track-rollout' ? 'Track Rollout' : 'Track C';
+
   return (
     <div style={{ marginTop: '20px', marginBottom: '60px' }}>
       {/* First Row - Three Charts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         {/* Daily Inspection Chart */}
-        <DailyInspectionChart />
+        <DailyInspectionChart project={project} />
 
         {/* RSM Inspection Chart */}
-        <RSMInspectionChart />
+        <RSMInspectionChart project={project} />
 
         {/* Average Score Chart */}
-        <AverageScoreChart />
+        <AverageScoreChart project={project} />
       </div>
 
       {/* Second Row - Other Charts if needed */}

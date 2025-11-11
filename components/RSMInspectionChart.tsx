@@ -19,14 +19,17 @@ const RSMInspectionChart = () => {
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['rsmInspections'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('5p').select('RSM, Technician_Code, Date');
+      const { data, error } = await supabase.from('5p').select('RSM, Technician_Code, Date, Project');
       
       if (error) throw new Error(error.message);
       
       // Group by RSM and count unique technician codes per day
       const groupedData: Record<string, Set<string>> = {};
       
-      (data as InspectionData[]).forEach((item) => {
+      (data as any[]).forEach((item) => {
+        // Filter for Track C only
+        if (item.Project !== 'Track C') return;
+        
         if (item.RSM && item.Technician_Code && item.Date) {
           // Format date as DD/MM/YYYY
           const dateObj = new Date(item.Date);

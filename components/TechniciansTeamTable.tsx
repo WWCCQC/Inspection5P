@@ -499,9 +499,6 @@ const TechniciansTeamTable = () => {
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-3 border-t bg-gray-50 text-sm text-gray-700">
-        แสดง {filteredGroupedData.length} ทีม จากทั้งหมด {groupedData.length} ทีม
-      </div>
     </div>
   );
 };

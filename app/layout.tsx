@@ -12,10 +12,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
         <header className="bg-white border-b">
           <div className="mx-auto max-w-7xl px-6 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <h1 className="font-semibold">5P Dashboard</h1>
-            </div>
-            
             {/* KPI Cards ใน Header */}
             <KPICards />
 

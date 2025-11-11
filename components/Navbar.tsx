@@ -47,6 +47,7 @@ const Navbar = () => {
         alignItems: 'center',
         paddingLeft: '16px',
         paddingRight: '16px',
+        marginBottom: '24px',
       }}
     >
       <div

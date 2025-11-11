@@ -11,9 +11,9 @@ const KPICardsWrapper = () => {
   // For Track Rollout: wrap KPI Cards and Project Cards in flex container
   if (isTrackRollout) {
     return (
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
         {/* KPI Cards */}
-        <div style={{ flex: '0 0 auto' }}>
+        <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
           <KPICards project="Track Rollout" hideTarget={true} />
         </div>
         

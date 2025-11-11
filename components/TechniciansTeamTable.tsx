@@ -459,11 +459,14 @@ const TechniciansTeamTable = () => {
                 if (column.key === 'provider') {
                   cellValue = 'Grand Total';
                 } else if (column.key === 'count') {
-                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.count, 0).toString();
+                  const total = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
+                  cellValue = total.toLocaleString('en-US');
                 } else if (column.key === 'actual') {
-                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0).toString();
+                  const total = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0);
+                  cellValue = total.toLocaleString('en-US');
                 } else if (column.key === 'pending') {
-                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0).toString();
+                  const total = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0);
+                  cellValue = total.toLocaleString('en-US');
                 } else if (column.key === 'percentActual') {
                   const totalCount = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
                   const totalActual = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0);

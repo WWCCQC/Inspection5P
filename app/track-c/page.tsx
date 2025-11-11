@@ -44,7 +44,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   const rows = data;
   
-  const rowsPerPage = 60;
+  const rowsPerPage = 50;
 
   // ฟังก์ชันแปลงรูปแบบ Date เป็น DD/MM/YYYY (ค.ศ.)
   const formatDate = (dateString: string | null) => {
@@ -63,6 +63,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   // Filter และ search ข้อมูล
   const filteredRows = React.useMemo(() => {
     let filtered = [...rows];
+    
+    // Filter for Track C only
+    filtered = filtered.filter(row => row.Project === 'Track C');
     
     // Search filter
     if (searchTerm) {

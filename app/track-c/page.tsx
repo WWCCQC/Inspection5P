@@ -125,14 +125,10 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     { header: "Company Code", key: "Company_Code" },
     { header: "Company Name", key: "Company_Name" },
     { header: "RSM", key: "RSM" },
-    { header: "Site ID/SOS No.", key: "Site_ID/SOS_No." },
-    { header: "Province", key: "Province" },
-    { header: "Type of work", key: "Type of work" },
     { header: "P", key: "P" },
     { header: "Code", key: "Code" },
     { header: "Item", key: "Item" },
     { header: "Score", key: "Score" },
-    { header: "Status", key: "Status" },
   ];
 
   return (

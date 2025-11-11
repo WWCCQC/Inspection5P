@@ -106,7 +106,7 @@ const AverageScoreChart = () => {
   return (
     <div style={{ width: '100%', height: 280, marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>
-        Average Score by Pillar (5P)
+        Average Score by 5P
       </h3>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart

@@ -114,7 +114,7 @@ const DailyInspectionChart = () => {
             strokeWidth={2}
             dot={{ fill: '#12239E', r: 4 }}
             activeDot={{ r: 6 }}
-            name="การตรวจสอบ"
+            name="จำนวน"
             isAnimationActive={true}
             label={{
               position: 'top',

@@ -109,7 +109,7 @@ const RSMInspectionChart = () => {
           <Bar
             dataKey="count"
             fill="#056D8D"
-            name="การตรวจสอบ"
+            name="จำนวน"
             isAnimationActive={true}
             radius={[8, 8, 0, 0]}
             label={{

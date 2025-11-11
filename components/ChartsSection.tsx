@@ -8,14 +8,14 @@ import AverageScoreChart from './AverageScoreChart';
 const ChartsSection = () => {
   const pathname = usePathname();
 
-  // Only show charts on Track C page
-  if (pathname !== '/track-c') {
+  // Show charts on Track C or Track Rollout page
+  if (pathname !== '/track-c' && pathname !== '/track-rollout') {
     return null;
   }
 
   return (
     <div style={{ marginTop: '20px', marginBottom: '60px' }}>
-      {/* First Row - Two Charts + Average Score Chart */}
+      {/* First Row - Three Charts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         {/* Daily Inspection Chart */}
         <DailyInspectionChart />

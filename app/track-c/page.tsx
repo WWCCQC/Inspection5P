@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
-import AverageScoreChart from "@/components/AverageScoreChart";
 import TechniciansTeamTable from "@/components/TechniciansTeamTable";
 
 type Row5P = {

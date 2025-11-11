@@ -4,8 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
-import AverageScoreChart from "@/components/AverageScoreChart";
-import TechniciansTeamTable from "@/components/TechniciansTeamTable";
 
 type Row5P = {
   id: number;
@@ -139,6 +137,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     { header: "Company Code", key: "Company_Code" },
     { header: "Company Name", key: "Company_Name" },
     { header: "RSM", key: "RSM" },
+    { header: "Site_ID/SOS_No.", key: "Site_ID/SOS_No." },
+    { header: "Province", key: "Province" },
+    { header: "Type of work", key: "Type of work" },
     { header: "P", key: "P" },
     { header: "Code", key: "Code" },
     { header: "Item", key: "Item" },
@@ -147,9 +148,6 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   return (
     <div className="space-y-6" style={{ marginTop: '40px' }}>
-      {/* Technicians Team Table */}
-      <TechniciansTeamTable />
-
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         {/* 5P Survey Header with Filters */}
@@ -343,6 +341,8 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
                     >
                       {column.key === 'Date' 
                         ? formatDate(row[column.key as keyof Row5P] as string)
+                        : column.key === 'Project'
+                        ? 'Track Rollout'
                         : (row[column.key as keyof Row5P] || '-')
                       }
                     </td>

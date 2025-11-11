@@ -15,6 +15,10 @@ interface ChartData {
   fill: string;
 }
 
+interface AverageScoreChartProps {
+  project?: string;
+}
+
 // ฟังก์ชั่นเพื่อกำหนดสีตามคะแนน
 const getColorByScore = (score: number): string => {
   if (score === 3.00) {
@@ -27,9 +31,9 @@ const getColorByScore = (score: number): string => {
   return '#F59E0B'; // สีเดิม (default)
 };
 
-const AverageScoreChart = () => {
+const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['averageScoreByPillar'],
+    queryKey: ['averageScoreByPillar', project],
     queryFn: async () => {
       // ดึงข้อมูล P, Score และ Project จากตาราง 5p
       let allData: any[] = [];
@@ -58,8 +62,8 @@ const AverageScoreChart = () => {
       const groupedData: Record<string, number[]> = {};
       
       allData.forEach((item) => {
-        // Filter for Track C only
-        if (item.Project !== 'Track C') return;
+        // Filter for specified project
+        if (item.Project !== project) return;
         
         if (item.P && item.Score) {
           const score = parseFloat(item.Score);

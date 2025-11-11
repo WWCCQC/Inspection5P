@@ -124,7 +124,19 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
         counts[projectName] = uniqueTechs.size;
       });
       
-      return counts;
+      // คำนวนยอดรวมทั้งหมด
+      const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+      
+      // เพิ่ม percentage ให้กับแต่ละค่า
+      const result: Record<string, { count: number; percentage: number }> = {};
+      Object.keys(counts).forEach(projectName => {
+        result[projectName] = {
+          count: counts[projectName],
+          percentage: totalCount > 0 ? Math.round((counts[projectName] / totalCount) * 100) : 0
+        };
+      });
+      
+      return result;
     },
   });
 
@@ -164,7 +176,10 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
           >
             <div style={{ marginBottom: '4px' }}>{project}</div>
             <div style={{ fontSize: '16px', fontWeight: '700', color: '#0EAD69' }}>
-              {(projectCounts as Record<string, number>)[project] || 0}
+              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.count || 0}
+            </div>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.percentage || 0}%
             </div>
           </div>
         ))}

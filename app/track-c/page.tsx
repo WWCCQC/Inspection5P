@@ -244,6 +244,19 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+        {/* 5P Survey Header */}
+        <div 
+          style={{
+            padding: '12px 16px',
+            backgroundColor: '#5c6bc0',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '16px',
+            width: '100%'
+          }}
+        >
+          5P Survey
+        </div>
         <div className="overflow-x-auto">
           <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
             <thead>

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
 import AverageScoreChart from "@/components/AverageScoreChart";
+import TechniciansTeamTable from "@/components/TechniciansTeamTable";
 
 type Row5P = {
   id: number;
@@ -133,6 +134,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   return (
     <div className="space-y-6" style={{ marginTop: '40px' }}>
+      {/* Technicians Team Table */}
+      <TechniciansTeamTable />
+
       {/* Search and Filter Section */}
       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
         {/* Search Input */}

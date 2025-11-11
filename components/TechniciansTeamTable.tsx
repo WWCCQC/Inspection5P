@@ -156,6 +156,48 @@ const TechniciansTeamTable = () => {
     return <div className="text-red-600 py-4">Error loading data: {(error as any)?.message}</div>;
   }
 
+  // Function to get gradient color based on percentage
+  const getGradientColor = (percentage: number, type: 'actual' | 'pending'): string => {
+    // Ensure percentage is between 0 and 100
+    const percent = Math.max(0, Math.min(100, percentage));
+    
+    if (type === 'actual') {
+      // Red (#D01716) -> Yellow (#FBC02D) -> Green (#0A7E07)
+      if (percent < 50) {
+        // Red to Yellow: 0-50%
+        const ratio = percent / 50;
+        const r = Math.round(208 - (208 - 251) * ratio);
+        const g = Math.round(23 - (23 - 192) * ratio);
+        const b = Math.round(22 - (22 - 45) * ratio);
+        return `rgb(${r}, ${g}, ${b})`;
+      } else {
+        // Yellow to Green: 50-100%
+        const ratio = (percent - 50) / 50;
+        const r = Math.round(251 - (251 - 10) * ratio);
+        const g = Math.round(192 - (192 - 126) * ratio);
+        const b = Math.round(45 - (45 - 7) * ratio);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+    } else {
+      // Green (#0A7E07) -> Yellow (#FBC02D) -> Red (#D01716)
+      if (percent < 50) {
+        // Green to Yellow: 0-50%
+        const ratio = percent / 50;
+        const r = Math.round(10 + (251 - 10) * ratio);
+        const g = Math.round(126 + (192 - 126) * ratio);
+        const b = Math.round(7 + (45 - 7) * ratio);
+        return `rgb(${r}, ${g}, ${b})`;
+      } else {
+        // Yellow to Red: 50-100%
+        const ratio = (percent - 50) / 50;
+        const r = Math.round(251 + (208 - 251) * ratio);
+        const g = Math.round(192 - (192 - 23) * ratio);
+        const b = Math.round(45 - (45 - 22) * ratio);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+    }
+  };
+
   const columns = [
     { header: 'Provider', key: 'provider' as const },
     { header: 'RSM', key: 'rsm' as const },
@@ -199,16 +241,24 @@ const TechniciansTeamTable = () => {
             {groupedData.map((row, rowIndex) => {
               const percentActual = row.count > 0 ? ((row.actual / row.count) * 100).toFixed(2) : '0.00';
               const percentPending = row.count > 0 ? ((row.pending / row.count) * 100).toFixed(2) : '0.00';
+              const percentActualNum = parseFloat(percentActual);
+              const percentPendingNum = parseFloat(percentPending);
               
               return (
                 <tr key={rowIndex}>
                   {columns.map((column, colIndex) => {
                     let cellValue = '-';
+                    let bgColor = 'transparent';
+                    let textColor = '#333';
                     
                     if (column.key === 'percentActual') {
                       cellValue = `${percentActual}%`;
+                      bgColor = getGradientColor(percentActualNum, 'actual');
+                      textColor = 'white';
                     } else if (column.key === 'percentPending') {
                       cellValue = `${percentPending}%`;
+                      bgColor = getGradientColor(percentPendingNum, 'pending');
+                      textColor = 'white';
                     } else {
                       cellValue = (row[column.key as keyof GroupedRow] ?? '-').toString();
                     }
@@ -218,10 +268,12 @@ const TechniciansTeamTable = () => {
                         key={colIndex}
                         style={{
                           padding: '6px 8px',
-                          color: '#333',
+                          color: textColor,
                           whiteSpace: 'nowrap',
                           border: '1px solid #eee',
+                          backgroundColor: bgColor,
                           textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') ? 'right' : 'left',
+                          fontWeight: column.key.includes('percent') ? '600' : '400',
                         }}
                       >
                         {cellValue}

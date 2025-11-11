@@ -186,7 +186,20 @@ const TechniciansTeamTable = () => {
 
   // Export to Excel
   const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredGroupedData);
+    // Transform data to include calculated columns
+    const dataForExport = filteredGroupedData.map(row => ({
+      'Provider': row.provider || '-',
+      'RSM': row.rsm || '-',
+      'Depot Code': row.depot_code,
+      'Depot Name': row.depot_name || '-',
+      'Technician Team (Total)': row.count,
+      'Actual': row.actual,
+      '%Actual': row.count > 0 ? ((row.actual / row.count) * 100).toFixed(2) + '%' : '0.00%',
+      'Pending': row.pending,
+      '%Pending': row.count > 0 ? ((row.pending / row.count) * 100).toFixed(2) + '%' : '0.00%',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataForExport);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Technicians Team');
     XLSX.writeFile(wb, `technicians-team-${new Date().toISOString().split('T')[0]}.xlsx`);

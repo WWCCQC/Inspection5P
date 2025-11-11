@@ -497,6 +497,50 @@ const TechniciansTeamTable = () => {
               );
             })}
           </tbody>
+          <tfoot>
+            <tr style={{ backgroundColor: '#f0f0f0', fontWeight: '600' }}>
+              {columns.map((column, colIndex) => {
+                let cellValue = '-';
+                
+                if (column.key === 'provider') {
+                  cellValue = 'Grand Total';
+                } else if (column.key === 'count') {
+                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.count, 0).toString();
+                } else if (column.key === 'actual') {
+                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0).toString();
+                } else if (column.key === 'pending') {
+                  cellValue = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0).toString();
+                } else if (column.key === 'percentActual') {
+                  const totalCount = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
+                  const totalActual = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0);
+                  const percent = totalCount > 0 ? ((totalActual / totalCount) * 100).toFixed(2) : '0.00';
+                  cellValue = `${percent}%`;
+                } else if (column.key === 'percentPending') {
+                  const totalCount = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
+                  const totalPending = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0);
+                  const percent = totalCount > 0 ? ((totalPending / totalCount) * 100).toFixed(2) : '0.00';
+                  cellValue = `${percent}%`;
+                }
+                
+                return (
+                  <td
+                    key={colIndex}
+                    style={{
+                      padding: '6px 8px',
+                      color: '#333',
+                      whiteSpace: 'nowrap',
+                      border: '1px solid #ddd',
+                      backgroundColor: '#f0f0f0',
+                      textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') ? 'right' : 'left',
+                      fontWeight: '600',
+                    }}
+                  >
+                    {cellValue}
+                  </td>
+                );
+              })}
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>

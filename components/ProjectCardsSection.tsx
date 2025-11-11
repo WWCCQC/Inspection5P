@@ -134,13 +134,7 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
 
   return (
     <div style={{ marginTop: variant === 'inline' ? '0px' : '0px' }}>
-      {/* Debug info - remove after fixing */}
-      {variant === 'inline' && (
-        <div style={{ fontSize: '11px', color: '#999', marginBottom: '4px' }}>
-          Debug: {Object.values(projectCounts as Record<string, number>).reduce((a, b) => a + b, 0)} total technicians
-        </div>
-      )}
-      <div style={{ display: 'grid', gridTemplateColumns: gridTemplate, gap: '8px' }}>
+      <div style={{ display: variant === 'inline' ? 'flex' : 'grid', gridTemplateColumns: variant === 'inline' ? undefined : gridTemplate, gap: '8px', flexWrap: variant === 'inline' ? 'wrap' : undefined }}>
         {projects.map((project) => (
           <div
             key={project}
@@ -156,6 +150,8 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              flex: variant === 'inline' ? '1 0 calc(16.666% - 8px)' : undefined,
+              minWidth: variant === 'inline' ? '100px' : undefined,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#80deea';

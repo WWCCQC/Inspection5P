@@ -38,6 +38,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [companyCodeFilter, setCompanyCodeFilter] = React.useState("");
+  const [companyNameFilter, setCompanyNameFilter] = React.useState("");
   const [rsmFilter, setRsmFilter] = React.useState("");
   const [scoreFilter, setScoreFilter] = React.useState("");
   const [searchBorderColor, setSearchBorderColor] = React.useState("#e5e7eb");
@@ -81,6 +82,11 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       filtered = filtered.filter(row => row.Company_Code === companyCodeFilter);
     }
     
+    // Company Name filter
+    if (companyNameFilter) {
+      filtered = filtered.filter(row => row.Company_Name === companyNameFilter);
+    }
+    
     // RSM filter  
     if (rsmFilter) {
       filtered = filtered.filter(row => row.RSM === rsmFilter);
@@ -92,7 +98,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     }
     
     return filtered;
-  }, [rows, searchTerm, companyCodeFilter, rsmFilter, scoreFilter]);
+  }, [rows, searchTerm, companyCodeFilter, companyNameFilter, rsmFilter, scoreFilter]);
 
   // Pagination
   const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
@@ -102,6 +108,10 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   // Get unique values for filters
   const uniqueCompanyCodes = React.useMemo(() => {
     return Array.from(new Set(rows.map(row => row?.Company_Code).filter(Boolean)));
+  }, [rows]);
+  
+  const uniqueCompanyNames = React.useMemo(() => {
+    return Array.from(new Set(rows.map(row => row?.Company_Name).filter(Boolean)));
   }, [rows]);
   
   const uniqueRSMs = React.useMemo(() => {
@@ -197,6 +207,27 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             <option value="">Company Code</option>
             {uniqueCompanyCodes.map(code => (
               <option key={code} value={code}>{code}</option>
+            ))}
+          </select>
+
+          {/* Company Name Filter */}
+          <select
+            value={companyNameFilter}
+            onChange={(e) => setCompanyNameFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Company Name</option>
+            {uniqueCompanyNames.map(name => (
+              <option key={name} value={name}>{name}</option>
             ))}
           </select>
 

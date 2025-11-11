@@ -3,24 +3,29 @@
 import { useState, useEffect } from 'react';
 
 const LiveClock = () => {
-  const [time, setTime] = useState<string>('');
+  const [dateTime, setDateTime] = useState<string>('');
 
   useEffect(() => {
-    // Set initial time
-    const updateTime = () => {
+    // Set initial date and time
+    const updateDateTime = () => {
       const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
       const thaiTime = now.toLocaleString('th-TH', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
+        hour12: false,
       });
-      setTime(thaiTime);
+      const dateTimeString = `${day}/${month}/${year} ${thaiTime}`;
+      setDateTime(dateTimeString);
     };
 
-    updateTime();
+    updateDateTime();
 
-    // Update time every second
-    const interval = setInterval(updateTime, 1000);
+    // Update date and time every second
+    const interval = setInterval(updateDateTime, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -38,7 +43,7 @@ const LiveClock = () => {
         fontFamily: 'monospace',
       }}
     >
-      {time || '00:00:00'}
+      {dateTime || '00/00/0000 00:00:00'}
     </div>
   );
 };

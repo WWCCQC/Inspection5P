@@ -18,14 +18,17 @@ const DailyInspectionChart = () => {
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['dailyInspections'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('5p').select('Date, Technician_Code');
+      const { data, error } = await supabase.from('5p').select('Date, Technician_Code, Project');
       
       if (error) throw new Error(error.message);
       
       // Group by date and count unique technician codes
       const groupedData: Record<string, Set<string>> = {};
       
-      (data as InspectionData[]).forEach((item) => {
+      (data as any[]).forEach((item) => {
+        // Filter for Track C only
+        if (item.Project !== 'Track C') return;
+        
         if (item.Date && item.Technician_Code) {
           // Parse date and format as DD/MM/YYYY (AD/Gregorian calendar)
           const dateObj = new Date(item.Date);

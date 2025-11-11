@@ -137,114 +137,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       {/* Technicians Team Table */}
       <TechniciansTeamTable />
 
-      {/* Search and Filter Section */}
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-        {/* Search Input */}
-        <input
-          type="text"
-          placeholder="ค้นหาอะไรก็ได้ในตารางนี้"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onFocus={() => setSearchBorderColor("#3b82f6")}
-          onBlur={() => setSearchBorderColor("#e5e7eb")}
-          style={{
-            flex: 1,
-            minWidth: '300px',
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: `2px solid ${searchBorderColor}`,
-            borderRadius: '8px',
-            outline: 'none',
-            transition: 'border-color 0.2s ease'
-          }}
-        />
-
-        {/* Company Code Filter */}
-        <select
-          value={companyCodeFilter}
-          onChange={(e) => setCompanyCodeFilter(e.target.value)}
-          style={{
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            outline: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="">Company Code</option>
-          {uniqueCompanyCodes.map(code => (
-            <option key={code} value={code}>{code}</option>
-          ))}
-        </select>
-
-        {/* RSM Filter */}
-        <select
-          value={rsmFilter}
-          onChange={(e) => setRsmFilter(e.target.value)}
-          style={{
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            outline: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="">RSM</option>
-          {uniqueRSMs.map(rsm => (
-            <option key={rsm} value={rsm}>{rsm}</option>
-          ))}
-        </select>
-
-        {/* Score Filter */}
-        <select
-          value={scoreFilter}
-          onChange={(e) => setScoreFilter(e.target.value)}
-          style={{
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            outline: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="">Score</option>
-          {uniqueScores.map(score => (
-            <option key={score} value={score}>{score}</option>
-          ))}
-        </select>
-
-        {/* Export Button */}
-        <button
-          onClick={exportToExcel}
-          style={{
-            marginLeft: 'auto',
-            padding: '12px 20px',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-        >
-          📊 Export Excel
-        </button>
-      </div>
-      
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        {/* 5P Survey Header */}
+        {/* 5P Survey Header with Filters */}
         <div 
           style={{
             padding: '12px 16px',
@@ -252,10 +147,122 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             color: 'white',
             fontWeight: '600',
             fontSize: '16px',
-            width: '100%'
+            width: '100%',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            flexWrap: 'wrap'
           }}
         >
-          5P Survey
+          <span style={{ minWidth: '80px' }}>5P Survey</span>
+          
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="ค้นหาอะไรก็ได้ในตารางนี้"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => setSearchBorderColor("#3b82f6")}
+            onBlur={() => setSearchBorderColor("#e5e7eb")}
+            style={{
+              flex: 1,
+              minWidth: '250px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: `2px solid ${searchBorderColor}`,
+              borderRadius: '6px',
+              outline: 'none',
+              transition: 'border-color 0.2s ease'
+            }}
+          />
+
+          {/* Company Code Filter */}
+          <select
+            value={companyCodeFilter}
+            onChange={(e) => setCompanyCodeFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Company Code</option>
+            {uniqueCompanyCodes.map(code => (
+              <option key={code} value={code}>{code}</option>
+            ))}
+          </select>
+
+          {/* RSM Filter */}
+          <select
+            value={rsmFilter}
+            onChange={(e) => setRsmFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">RSM</option>
+            {uniqueRSMs.map(rsm => (
+              <option key={rsm} value={rsm}>{rsm}</option>
+            ))}
+          </select>
+
+          {/* Score Filter */}
+          <select
+            value={scoreFilter}
+            onChange={(e) => setScoreFilter(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              fontSize: '14px',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
+              outline: 'none',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+              color: '#333'
+            }}
+          >
+            <option value="">Score</option>
+            {uniqueScores.map(score => (
+              <option key={score} value={score}>{score}</option>
+            ))}
+          </select>
+
+          {/* Export Button */}
+          <button
+            onClick={exportToExcel}
+            style={{
+              marginLeft: 'auto',
+              padding: '8px 16px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          >
+            📊 Export
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>

@@ -176,10 +176,7 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
           >
             <div style={{ marginBottom: '4px' }}>{project}</div>
             <div style={{ fontSize: '16px', fontWeight: '700', color: '#0EAD69' }}>
-              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.count || 0}
-            </div>
-            <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.percentage || 0}%
+              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.count || 0} ({(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.percentage || 0}%)
             </div>
           </div>
         ))}

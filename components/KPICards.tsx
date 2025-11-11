@@ -16,7 +16,12 @@ interface ActualData {
   count: number;
 }
 
-const KPICards = () => {
+interface KPICardsProps {
+  project?: string;
+  hideTarget?: boolean;
+}
+
+const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) => {
   const { data: targetData = { total: 0, heads: 0 } } = useQuery({
     queryKey: ['targetCount'],
     queryFn: async () => {
@@ -61,9 +66,9 @@ const KPICards = () => {
   });
 
   const { data: actualData = { count: 0 } } = useQuery({
-    queryKey: ['actualCount'],
+    queryKey: ['actualCount', project],
     queryFn: async () => {
-      // ดึงข้อมูล Technician_Code และ Date จากตาราง 5p
+      // ดึงข้อมูล Technician_Name, Date และ Project จากตาราง 5p
       let allData: any[] = [];
       let from = 0;
       const pageSize = 1000;
@@ -72,7 +77,7 @@ const KPICards = () => {
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('Technician_Code, Date')
+          .select('Technician_Name, Date, Project')
           .range(from, from + pageSize - 1);
         
         if (error) throw new Error(error.message);
@@ -86,11 +91,14 @@ const KPICards = () => {
         from += pageSize;
       }
       
-      // นับจำนวน unique (Technician_Code, Date) pairs
+      // นับจำนวน unique (Technician_Name, Date) pairs สำหรับ project ที่ระบุ
       const uniquePairs = new Set();
       allData.forEach((item) => {
-        if (item.Technician_Code && item.Date) {
-          uniquePairs.add(`${item.Technician_Code}|${item.Date}`);
+        // Filter for specified project
+        if (item.Project !== project) return;
+        
+        if (item.Technician_Name && item.Date) {
+          uniquePairs.add(`${item.Technician_Name}|${item.Date}`);
         }
       });
       
@@ -114,23 +122,25 @@ const KPICards = () => {
     : 0;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-      {/* Target Card */}
-      <div 
-        style={{ 
-          backgroundColor: '#203864', 
-          color: 'white',
-          padding: '8px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          fontSize: '12px'
-        }}
-      >
-        <div>Target</div>
-        <div style={{ fontWeight: '700', fontSize: '16px' }}>
-          {targetData.heads.toLocaleString()}
+    <div style={{ display: hideTarget ? 'flex' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(3, 1fr)', gap: '8px' }}>
+      {/* Target Card - Only show if not hideTarget */}
+      {!hideTarget && (
+        <div 
+          style={{ 
+            backgroundColor: '#203864', 
+            color: 'white',
+            padding: '8px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontSize: '12px'
+          }}
+        >
+          <div>Target</div>
+          <div style={{ fontWeight: '700', fontSize: '16px' }}>
+            {targetData.heads.toLocaleString()}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Actual Card */}
       <div 
@@ -140,31 +150,35 @@ const KPICards = () => {
           padding: '8px',
           borderRadius: '8px',
           textAlign: 'center',
-          fontSize: '12px'
+          fontSize: '12px',
+          minWidth: '140px',
+          flex: hideTarget ? '0 0 auto' : '1'
         }}
       >
         <div>Actual</div>
         <div style={{ fontWeight: '700', fontSize: '16px' }}>
-          {actualData.count.toLocaleString()} ({percentage.toFixed(2)}%)
+          {hideTarget ? actualData.count.toLocaleString() : `${actualData.count.toLocaleString()} (${percentage.toFixed(2)}%)`}
         </div>
       </div>
 
-      {/* Pending Card */}
-      <div 
-        style={{ 
-          backgroundColor: '#D90429', 
-          color: 'white',
-          padding: '8px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          fontSize: '12px'
-        }}
-      >
-        <div>Pending</div>
-        <div style={{ fontWeight: '700', fontSize: '16px' }}>
-          {pending.toLocaleString()} ({pendingPercentage.toFixed(2)}%)
+      {/* Pending Card - Only show if not hideTarget */}
+      {!hideTarget && (
+        <div 
+          style={{ 
+            backgroundColor: '#D90429', 
+            color: 'white',
+            padding: '8px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontSize: '12px'
+          }}
+        >
+          <div>Pending</div>
+          <div style={{ fontWeight: '700', fontSize: '16px' }}>
+            {pending.toLocaleString()} ({pendingPercentage.toFixed(2)}%)
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

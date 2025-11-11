@@ -1,6 +1,6 @@
 ﻿import Navbar from '@/components/Navbar';
 import ChartsSection from '@/components/ChartsSection';
-import KPICards from '@/components/KPICards';
+import KPICardsWrapper from '@/components/KPICardsWrapper';
 import { QueryProvider } from './providers';
 
 export const metadata = { title: "5P Dashboard" };
@@ -12,8 +12,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
         <header className="bg-white border-b">
           <div className="mx-auto max-w-7xl px-6 py-3">
-            {/* KPI Cards ใน Header */}
-            <KPICards />
+            {/* KPI Cards and Project Cards - layout handled by KPICardsWrapper */}
+            <KPICardsWrapper />
 
             {/* Charts Section - only on Track C */}
             <ChartsSection />

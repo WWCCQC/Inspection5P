@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabaseClient';
 
 interface InspectionData {
@@ -12,7 +12,8 @@ interface InspectionData {
 
 interface ChartData {
   rsm: string;
-  count: number;
+  actual: number;
+  target: number;
 }
 
 interface RSMInspectionChartProps {
@@ -23,8 +24,8 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['rsmInspections', project],
     queryFn: async () => {
-      // Fetch ALL data with pagination
-      let allData: any[] = [];
+      // 1. Fetch inspection data (Actual) from 5p table
+      let allInspections: any[] = [];
       let from = 0;
       const pageSize = 1000;
       
@@ -39,17 +40,54 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
         
         if (!data || data.length === 0) break;
         
-        allData = [...allData, ...data];
+        allInspections = [...allInspections, ...data];
         
         if (data.length < pageSize) break;
         
         from += pageSize;
       }
       
-      // Group by RSM and count unique technician codes per day
-      const groupedData: Record<string, Set<string>> = {};
+      // 2. Fetch technicians data (Target) from technicians table
+      let allTechnicians: any[] = [];
+      let techPage = 0;
       
-      allData.forEach((item) => {
+      while (true) {
+        const { data: techData, error: techError } = await supabase
+          .from('technicians')
+          .select('rsm, workgroup_status, depot_code')
+          .range(techPage * pageSize, (techPage + 1) * pageSize - 1);
+        
+        if (techError) throw new Error(techError.message);
+        
+        if (!techData || techData.length === 0) break;
+        
+        allTechnicians = [...allTechnicians, ...techData];
+        
+        if (techData.length < pageSize) break;
+        
+        techPage++;
+      }
+      
+      // 3. Count target (จำนวนช่างหัวหน้าแต่ละ RSM)
+      const excludedDepotCodes = ['PTT1-38', 'WW-BM-0093', 'WW-CR-1309'];
+      const targetByRSM: Record<string, number> = {};
+      
+      allTechnicians.forEach((tech) => {
+        if (tech.rsm && 
+            tech.workgroup_status && 
+            tech.workgroup_status.includes('หัวหน้า') &&
+            !excludedDepotCodes.includes(tech.depot_code || '')) {
+          if (!targetByRSM[tech.rsm]) {
+            targetByRSM[tech.rsm] = 0;
+          }
+          targetByRSM[tech.rsm]++;
+        }
+      });
+      
+      // 4. Count actual (จำนวนการตรวจจริงแต่ละ RSM)
+      const actualByRSM: Record<string, Set<string>> = {};
+      
+      allInspections.forEach((item) => {
         if (item.RSM && item.Technician_Code && item.Date) {
           // Format date as DD/MM/YYYY
           const dateObj = new Date(item.Date);
@@ -61,21 +99,27 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
           // Create composite key: RSM + Date + Technician_Code
           const key = `${item.RSM}|${formattedDate}|${item.Technician_Code}`;
           
-          if (!groupedData[item.RSM]) {
-            groupedData[item.RSM] = new Set();
+          if (!actualByRSM[item.RSM]) {
+            actualByRSM[item.RSM] = new Set();
           }
-          // Add the key to track unique technicians per RSM per day
-          groupedData[item.RSM].add(key);
+          actualByRSM[item.RSM].add(key);
         }
       });
       
-      // Convert to array with count of unique (technician, date) combinations
-      const chartArray: ChartData[] = Object.entries(groupedData).map(([rsm, keySet]) => ({
+      // 5. Combine actual and target data
+      const allRSMs = new Set([
+        ...Object.keys(targetByRSM),
+        ...Object.keys(actualByRSM)
+      ]);
+      
+      const chartArray: ChartData[] = Array.from(allRSMs).map((rsm) => ({
         rsm,
-        count: keySet.size,
+        actual: actualByRSM[rsm]?.size || 0,
+        target: targetByRSM[rsm] || 0,
       }));
       
-      chartArray.sort((a, b) => b.count - a.count);
+      // Sort by actual count descending
+      chartArray.sort((a, b) => b.actual - a.actual);
       
       return chartArray;
     },
@@ -103,7 +147,7 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
         Inspection by RSM
       </h3>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
+        <ComposedChart
           data={chartData}
           margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
         >
@@ -125,14 +169,18 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
               borderRadius: '8px',
               padding: '12px',
             }}
-            formatter={(value) => [`${value} ครั้ง`, 'จำนวน']}
+            formatter={(value, name) => {
+              if (name === 'actual') return [`${value} ครั้ง`, 'Actual'];
+              if (name === 'target') return [`${value} คน`, 'Target'];
+              return [value, name];
+            }}
             labelFormatter={(label) => `RSM: ${label}`}
           />
           <Legend verticalAlign="top" height={36} />
           <Bar
-            dataKey="count"
+            dataKey="actual"
             fill="#056D8D"
-            name="จำนวน"
+            name="Actual"
             isAnimationActive={true}
             radius={[8, 8, 0, 0]}
             label={{
@@ -143,7 +191,23 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
               offset: 5
             }}
           />
-        </BarChart>
+          <Line
+            type="monotone"
+            dataKey="target"
+            stroke="#ff0000"
+            strokeWidth={2}
+            name="Target"
+            dot={{ r: 5, fill: '#ff0000' }}
+            activeDot={{ r: 7 }}
+            label={{
+              position: 'top',
+              fill: '#ff0000',
+              fontSize: 11,
+              fontWeight: 600,
+              offset: 10
+            }}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

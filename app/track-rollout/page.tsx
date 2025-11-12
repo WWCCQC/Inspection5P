@@ -107,11 +107,45 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       filtered = filtered.filter(row => row["Type of work"] === typeOfWorkFilter);
     }
     
-    // Sort by Date (newest first - descending order)
+    // Sort by Date (newest first), then Technician_Name, then Code
     filtered.sort((a, b) => {
+      // 1. Sort by Date (newest first - descending order)
       const dateA = a.Date ? new Date(a.Date).getTime() : 0;
       const dateB = b.Date ? new Date(b.Date).getTime() : 0;
-      return dateB - dateA; // Descending order (newest first)
+      if (dateB !== dateA) {
+        return dateB - dateA;
+      }
+      
+      // 2. Sort by Technician_Name (alphabetically)
+      const techA = (a.Technician_Name || '').toLowerCase();
+      const techB = (b.Technician_Name || '').toLowerCase();
+      if (techA !== techB) {
+        return techA.localeCompare(techB);
+      }
+      
+      // 3. Sort by Code (1.1, 1.2, 1.3, 2.1, 2.2, 2.3)
+      const codeA = a.Code || '';
+      const codeB = b.Code || '';
+      
+      // Parse code as numbers (e.g., "1.1" -> [1, 1], "2.11" -> [2, 11])
+      const parseCode = (code: string) => {
+        const parts = code.split('.').map(part => parseInt(part) || 0);
+        return parts;
+      };
+      
+      const partsA = parseCode(codeA);
+      const partsB = parseCode(codeB);
+      
+      // Compare each part
+      for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+        const partA = partsA[i] || 0;
+        const partB = partsB[i] || 0;
+        if (partA !== partB) {
+          return partA - partB;
+        }
+      }
+      
+      return 0;
     });
     
     return filtered;

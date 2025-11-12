@@ -112,14 +112,24 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
         ...Object.keys(actualByRSM)
       ]);
       
-      const chartArray: ChartData[] = Array.from(allRSMs).map((rsm) => ({
-        rsm,
-        actual: actualByRSM[rsm]?.size || 0,
-        target: targetByRSM[rsm] || 0,
-      }));
+      const chartArray: ChartData[] = Array.from(allRSMs).map((rsm) => {
+        const totalTechnicians = targetByRSM[rsm] || 0;
+        // Calculate 20% of total technicians and round up
+        const target = Math.ceil(totalTechnicians * 0.2);
+        
+        return {
+          rsm,
+          actual: actualByRSM[rsm]?.size || 0,
+          target: target,
+        };
+      });
       
-      // Sort by actual count descending
-      chartArray.sort((a, b) => b.actual - a.actual);
+      // Sort by RSM name alphabetically (A-Z)
+      chartArray.sort((a, b) => {
+        const rsmA = a.rsm || '';
+        const rsmB = b.rsm || '';
+        return rsmA.localeCompare(rsmB, undefined, { numeric: true, sensitivity: 'base' });
+      });
       
       return chartArray;
     },
@@ -143,8 +153,9 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
 
   return (
     <div style={{ width: '100%', height: 280, marginTop: '20px' }}>
-      <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>
-        Inspection by RSM
+      <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+        <span style={{ color: '#333' }}>Inspection by RSM</span>
+        <span style={{ color: '#203864', fontSize: '12px' }}>(Target/20%/RSM/Month)</span>
       </h3>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
@@ -170,22 +181,22 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
               padding: '12px',
             }}
             formatter={(value, name) => {
-              if (name === 'actual') return [`${value} ครั้ง`, 'Actual'];
               if (name === 'target') return [`${value} คน`, 'Target'];
+              if (name === 'actual') return [`${value} ครั้ง`, 'Actual'];
               return [value, name];
             }}
             labelFormatter={(label) => `RSM: ${label}`}
           />
           <Legend verticalAlign="top" height={36} />
           <Bar
-            dataKey="actual"
-            fill="#056D8D"
-            name="Actual"
+            dataKey="target"
+            fill="#203864"
+            name="Target"
             isAnimationActive={true}
             radius={[8, 8, 0, 0]}
             label={{
               position: 'top',
-              fill: '#333',
+              fill: '#203864',
               fontSize: 12,
               fontWeight: 600,
               offset: 5
@@ -193,18 +204,44 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
           />
           <Line
             type="monotone"
-            dataKey="target"
-            stroke="#ff0000"
+            dataKey="actual"
+            stroke="#0EAD69"
             strokeWidth={2}
-            name="Target"
-            dot={{ r: 5, fill: '#ff0000' }}
-            activeDot={{ r: 7 }}
-            label={{
-              position: 'top',
-              fill: '#ff0000',
-              fontSize: 11,
-              fontWeight: 600,
-              offset: 10
+            name="Actual"
+            dot={{ r: 3, fill: '#0EAD69' }}
+            activeDot={{ r: 5 }}
+            label={({ x, y, index, value }: any) => {
+              if (!chartData || !chartData[index]) return null;
+              
+              const dataPoint = chartData[index];
+              const actual = dataPoint.actual || 0;
+              const target = dataPoint.target || 0;
+              const percentage = target > 0 ? ((actual / target) * 100).toFixed(2) : '0.00';
+              
+              return (
+                <g>
+                  <text
+                    x={x}
+                    y={y - 20}
+                    fill="#FFFFFF"
+                    fontSize={11}
+                    fontWeight={700}
+                    textAnchor="middle"
+                  >
+                    {actual}
+                  </text>
+                  <text
+                    x={x}
+                    y={y - 8}
+                    fill="#FFFFFF"
+                    fontSize={10}
+                    fontWeight={600}
+                    textAnchor="middle"
+                  >
+                    ({percentage}%)
+                  </text>
+                </g>
+              );
             }}
           />
         </ComposedChart>

@@ -133,15 +133,15 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
           <Line
             type="monotone"
             dataKey="count"
-            stroke="#12239E"
+            stroke="#0EAD69"
             strokeWidth={2}
-            dot={{ fill: '#12239E', r: 4 }}
+            dot={{ fill: '#0EAD69', r: 4 }}
             activeDot={{ r: 6 }}
             name="จำนวน"
             isAnimationActive={true}
             label={{
               position: 'top',
-              fill: '#12239E',
+              fill: '#0EAD69',
               fontSize: 12,
               fontWeight: 600,
               offset: 5

@@ -167,14 +167,21 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
     });
   }, [data]);
 
-  // Filter grouped data based on filter values
+  // Filter grouped data based on filter values and sort by %Actual descending
   const filteredGroupedData: GroupedRow[] = React.useMemo(() => {
-    return groupedData.filter(row => {
+    const filtered = groupedData.filter(row => {
       if (providerFilter && row.provider !== providerFilter) return false;
       if (rsmFilter && row.rsm !== rsmFilter) return false;
       if (depotCodeFilter && row.depot_code !== depotCodeFilter) return false;
       if (depotNameFilter && row.depot_name !== depotNameFilter) return false;
       return true;
+    });
+    
+    // Sort by %Actual descending (highest first)
+    return filtered.sort((a, b) => {
+      const percentA = a.count > 0 ? (a.actual / a.count) * 100 : 0;
+      const percentB = b.count > 0 ? (b.actual / b.count) * 100 : 0;
+      return percentB - percentA; // descending order
     });
   }, [groupedData, providerFilter, rsmFilter, depotCodeFilter, depotNameFilter]);
 

@@ -96,6 +96,32 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       filtered = filtered.filter(row => row.Score === scoreFilter);
     }
     
+    // Sort by Date descending (newest first), then by Technician_Code, then by Code ascending
+    filtered.sort((a, b) => {
+      const dateA = a.Date ? new Date(a.Date).getTime() : 0;
+      const dateB = b.Date ? new Date(b.Date).getTime() : 0;
+      
+      // First sort by date (descending - newest first)
+      if (dateB !== dateA) {
+        return dateB - dateA;
+      }
+      
+      // If dates are equal, sort by Technician_Code (ascending)
+      const techCodeA = a.Technician_Code || '';
+      const techCodeB = b.Technician_Code || '';
+      
+      if (techCodeA !== techCodeB) {
+        return techCodeA.localeCompare(techCodeB, undefined, { numeric: true, sensitivity: 'base' });
+      }
+      
+      // If Technician_Code is also equal, sort by Code (ascending)
+      const codeA = a.Code || '';
+      const codeB = b.Code || '';
+      
+      // Natural sort for codes like 1.1, 1.2, 2.1, etc.
+      return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    
     return filtered;
   }, [rows, searchTerm, companyCodeFilter, companyNameFilter, rsmFilter, scoreFilter]);
 

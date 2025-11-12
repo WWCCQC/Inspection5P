@@ -1,3 +1,4 @@
 {
-  "/track-c/page": "app/track-c/page.js"
+  "/track-c/page": "app/track-c/page.js",
+  "/page": "app/page.js"
 }

@@ -24,14 +24,18 @@ type GroupedRow = {
   pending: number;
 };
 
-const TechniciansTeamTable = () => {
+type TechniciansTeamTableProps = {
+  project?: string;
+};
+
+const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   const [providerFilter, setProviderFilter] = React.useState('');
   const [rsmFilter, setRsmFilter] = React.useState('');
   const [depotCodeFilter, setDepotCodeFilter] = React.useState('');
   const [depotNameFilter, setDepotNameFilter] = React.useState('');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['technicians-team'],
+    queryKey: ['technicians-team', project],
     queryFn: async () => {
       let allData: Technician[] = [];
       let page = 0;
@@ -74,10 +78,17 @@ const TechniciansTeamTable = () => {
       let fivePHasMore = true;
       
       while (fivePHasMore) {
-        const { data: fivePData, error: fivePError } = await supabase
+        let query = supabase
           .from('5p')
-          .select('Technician_Code, Date')
+          .select('Technician_Code, Date, Project')
           .range(fivePPage * pageSize, (fivePPage + 1) * pageSize - 1);
+        
+        // Filter by project if specified
+        if (project) {
+          query = query.eq('Project', project);
+        }
+
+        const { data: fivePData, error: fivePError } = await query;
 
         if (fivePError) {
           console.error('Supabase 5p error:', fivePError);

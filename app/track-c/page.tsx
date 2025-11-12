@@ -147,7 +147,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   return (
     <div className="space-y-6" style={{ marginTop: '40px' }}>
       {/* Technicians Team Table */}
-      <TechniciansTeamTable />
+      <TechniciansTeamTable project="Track C" />
 
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
@@ -387,11 +387,33 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
 function Content() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["5p"],
+    queryKey: ["5p-track-c"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("5p").select("*").limit(5000);
-      if (error) throw error;
-      return data as Row5P[];
+      let allData: Row5P[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
+
+      // Fetch all data with pagination for Track C
+      while (hasMore) {
+        const { data: pageData, error } = await supabase
+          .from("5p")
+          .select("*")
+          .eq("Project", "Track C")
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) throw error;
+
+        if (!pageData || pageData.length === 0) {
+          hasMore = false;
+        } else {
+          allData = [...allData, ...(pageData as Row5P[])];
+          page++;
+        }
+      }
+
+      console.log('Total fetched Track C data:', allData.length);
+      return allData;
     }
   });
 

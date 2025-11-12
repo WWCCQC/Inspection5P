@@ -107,6 +107,13 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       filtered = filtered.filter(row => row["Type of work"] === typeOfWorkFilter);
     }
     
+    // Sort by Date (newest first - descending order)
+    filtered.sort((a, b) => {
+      const dateA = a.Date ? new Date(a.Date).getTime() : 0;
+      const dateB = b.Date ? new Date(b.Date).getTime() : 0;
+      return dateB - dateA; // Descending order (newest first)
+    });
+    
     return filtered;
   }, [rows, searchTerm, companyNameFilter, rsmFilter, scoreFilter, siteIdFilter, provinceFilter, typeOfWorkFilter]);
 

@@ -456,11 +456,32 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
 function Content() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["5p"],
+    queryKey: ["5p", "Track Rollout"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("5p").select("*").limit(5000);
-      if (error) throw error;
-      return data as Row5P[];
+      // Fetch ALL Track Rollout data without limit
+      let allData: Row5P[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      
+      while (true) {
+        const { data, error } = await supabase
+          .from("5p")
+          .select("*")
+          .eq("Project", "Track Rollout")
+          .range(from, from + pageSize - 1);
+          
+        if (error) throw error;
+        
+        if (!data || data.length === 0) break;
+        
+        allData = [...allData, ...data];
+        
+        if (data.length < pageSize) break;
+        
+        from += pageSize;
+      }
+      
+      return allData as Row5P[];
     }
   });
 

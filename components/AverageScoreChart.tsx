@@ -45,6 +45,7 @@ const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
         const { data, error } = await supabase
           .from('5p')
           .select('P, Score, Project')
+          .eq('Project', project)
           .range(from, from + pageSize - 1);
         
         if (error) throw new Error(error.message);
@@ -62,9 +63,6 @@ const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
       const groupedData: Record<string, number[]> = {};
       
       allData.forEach((item) => {
-        // Filter for specified project
-        if (item.Project !== project) return;
-        
         if (item.P && item.Score) {
           const score = parseFloat(item.Score);
           

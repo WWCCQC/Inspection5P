@@ -22,17 +22,33 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['dailyInspections', project],
     queryFn: async () => {
-      const { data, error } = await supabase.from('5p').select('Date, Technician_Name, Project');
+      // Fetch ALL data with pagination to avoid 1000 record limit
+      let allData: any[] = [];
+      let from = 0;
+      const pageSize = 1000;
       
-      if (error) throw new Error(error.message);
+      while (true) {
+        const { data, error } = await supabase
+          .from('5p')
+          .select('Date, Technician_Name, Project')
+          .eq('Project', project)
+          .range(from, from + pageSize - 1);
+        
+        if (error) throw new Error(error.message);
+        
+        if (!data || data.length === 0) break;
+        
+        allData = [...allData, ...data];
+        
+        if (data.length < pageSize) break;
+        
+        from += pageSize;
+      }
       
       // Group by date and count unique technician names
       const groupedData: Record<string, Set<string>> = {};
       
-      (data as any[]).forEach((item) => {
-        // Filter for specified project
-        if (item.Project !== project) return;
-        
+      allData.forEach((item) => {
         if (item.Date && item.Technician_Name) {
           // Parse date and format as DD/MM/YYYY (AD/Gregorian calendar)
           const dateObj = new Date(item.Date);

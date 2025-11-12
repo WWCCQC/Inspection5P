@@ -23,8 +23,8 @@ const ChartsSection = () => {
         {/* Daily Inspection Chart */}
         <DailyInspectionChart project={project} />
 
-        {/* RSM Inspection Chart */}
-        <RSMInspectionChart project={project} />
+        {/* RSM Inspection Chart - Only show on Track C */}
+        {pathname === '/track-c' && <RSMInspectionChart project={project} />}
 
         {/* Average Score Chart */}
         <AverageScoreChart project={project} />

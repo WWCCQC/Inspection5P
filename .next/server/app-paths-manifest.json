@@ -1,3 +1,4 @@
 {
+  "/track-rollout/page": "app/track-rollout/page.js",
   "/track-c/page": "app/track-c/page.js"
 }

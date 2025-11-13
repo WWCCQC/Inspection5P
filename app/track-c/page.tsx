@@ -6,6 +6,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
 import TechniciansTeamTable from "@/components/TechniciansTeamTable";
 import TechnicianRankingTable from "@/components/TechnicianRankingTable";
+import WorstCodeSummaryTable from "@/components/WorstCodeSummaryTable";
+import WorstCodeChart from "@/components/WorstCodeChart";
 
 type Row5P = {
   id: number;
@@ -175,6 +177,21 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     <div style={{ marginTop: '40px' }}>
       {/* 5P Technician Ranking Table */}
       <TechnicianRankingTable project="Track C" />
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
+      {/* 5P Worst Code Summary Table & Chart (70% - 30%) */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ flex: '0 0 70%' }}>
+          <WorstCodeSummaryTable project="Track C" />
+        </div>
+        {/* Vertical Divider */}
+        <div style={{ width: '1px', backgroundColor: '#d1d5db', flexShrink: 0 }}></div>
+        <div style={{ flex: '1' }}>
+          <WorstCodeChart project="Track C" />
+        </div>
+      </div>
 
       {/* Divider */}
       <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>

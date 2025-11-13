@@ -51,16 +51,16 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       // Depot codes ที่ต้องแยกออก
       const excludedDepotCodes = ['PTT1-38', 'WW-BM-0093', 'WW-CR-1309'];
       
-      // นับจำนวนที่มี "หัวหน้า" และไม่อยู่ใน excluded list
-      const headsCount = (allData as any[]).filter(item => {
+      // นับจำนวนที่มี "หัวหน้า" และไม่อยู่ใน excluded list (ใช้สำหรับ Technician Team และ heads เหมือนกัน)
+      const teamCount = (allData as any[]).filter(item => {
         const hasHeadTitle = (item.workgroup_status || '').includes('หัวหน้า');
         const isNotExcluded = !excludedDepotCodes.includes(item.depot_code);
         return hasHeadTitle && isNotExcluded;
       }).length;
       
       return {
-        total: allData.length,
-        heads: headsCount
+        total: teamCount,
+        heads: teamCount
       };
     },
   });

@@ -14,11 +14,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/track-c/page.js"
-    ],
-    "/track-rollout/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/track-rollout/page.js"
     ]
   }
 }

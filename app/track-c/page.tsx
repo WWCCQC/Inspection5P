@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
 import TechniciansTeamTable from "@/components/TechniciansTeamTable";
+import TechnicianRankingTable from "@/components/TechnicianRankingTable";
 
 type Row5P = {
   id: number;
@@ -172,6 +173,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   return (
     <div className="space-y-6" style={{ marginTop: '40px' }}>
+      {/* 5P Technician Ranking Table */}
+      <TechnicianRankingTable project="Track C" />
+
       {/* Technicians Team Table */}
       <TechniciansTeamTable project="Track C" />
 

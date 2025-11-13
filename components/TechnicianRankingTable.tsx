@@ -38,11 +38,6 @@ type TechnicianRankingTableProps = {
 };
 
 const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) => {
-  const [companyNameFilter, setCompanyNameFilter] = React.useState('');
-  const [rsmFilter, setRsmFilter] = React.useState('');
-  const [technicianCodeFilter, setTechnicianCodeFilter] = React.useState('');
-  const [technicianNameFilter, setTechnicianNameFilter] = React.useState('');
-
   const { data, isLoading, error } = useQuery({
     queryKey: ['technician-ranking', project],
     queryFn: async () => {
@@ -193,68 +188,10 @@ const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) =
     return rankings;
   }, [data]);
 
-  // Filter ranking data based on filter values
+  // Show top 10 only (no filtering)
   const filteredRankingData: TechnicianRankingRow[] = React.useMemo(() => {
-    const filtered = rankingData.filter(row => {
-      if (companyNameFilter && row.company_name !== companyNameFilter) return false;
-      if (rsmFilter && row.rsm !== rsmFilter) return false;
-      if (technicianCodeFilter && row.technician_code !== technicianCodeFilter) return false;
-      if (technicianNameFilter && row.technician_name !== technicianNameFilter) return false;
-      return true;
-    });
-    // Limit to top 10 rows
-    return filtered.slice(0, 10);
-  }, [rankingData, companyNameFilter, rsmFilter, technicianCodeFilter, technicianNameFilter]);
-
-  // Get unique values for filters
-  const uniqueCompanyNames = React.useMemo(() => {
-    return Array.from(new Set(rankingData.map(row => row.company_name).filter(Boolean))).sort();
+    return rankingData.slice(0, 10);
   }, [rankingData]);
-
-  const uniqueRsms = React.useMemo(() => {
-    return Array.from(new Set(rankingData.map(row => row.rsm).filter(Boolean))).sort();
-  }, [rankingData]);
-
-  const uniqueTechnicianCodes = React.useMemo(() => {
-    return Array.from(new Set(rankingData.map(row => row.technician_code).filter(Boolean))).sort();
-  }, [rankingData]);
-
-  const uniqueTechnicianNames = React.useMemo(() => {
-    return Array.from(new Set(rankingData.map(row => row.technician_name).filter(Boolean))).sort();
-  }, [rankingData]);
-
-  // Export to Excel
-  const exportToExcel = () => {
-    const dataForExport = filteredRankingData.map(row => ({
-      'Rank': row.rank,
-      'Technician_Code': row.technician_code,
-      'Technician_Name': row.technician_name,
-      'Company_Name': row.company_name,
-      'RSM': row.rsm,
-      'Max_Score': row.max_score,
-      'Total_Score': row.total_score,
-      '%Score': row.percent_score.toFixed(2) + '%',
-      'Total_Items': row.total_items,
-      'People': row.people,
-      'Planning & Procedure': row.planning_procedure,
-      'PPE & Tools': row.ppe_tools,
-      'Place': row.place,
-      'Pause': row.pause,
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dataForExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '5P Technician Ranking');
-    XLSX.writeFile(wb, `5p-technician-ranking-${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
-
-  // Clear filters
-  const clearFilters = () => {
-    setCompanyNameFilter('');
-    setRsmFilter('');
-    setTechnicianCodeFilter('');
-    setTechnicianNameFilter('');
-  };
 
   if (isLoading) return <div className="text-center py-4">Loading…</div>;
   if (error) {
@@ -321,16 +258,12 @@ const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) =
 
   return (
     <div className="bg-white rounded-lg border shadow-sm overflow-hidden mb-6">
-      {/* Header with Filter */}
+      {/* Header */}
       <div 
         style={{
           padding: '12px 16px',
           backgroundColor: '#5c6bc0',
           width: '100%',
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center',
-          flexWrap: 'wrap',
         }}
       >
         <h3 style={{
@@ -338,135 +271,9 @@ const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) =
           fontSize: '16px',
           fontWeight: '600',
           color: 'white',
-          minWidth: 'fit-content',
         }}>
-          5P Technician Ranking
+          5P Technician Ranking (Top 10)
         </h3>
-
-        {/* Company Name Filter */}
-        <select
-          value={companyNameFilter}
-          onChange={(e) => setCompanyNameFilter(e.target.value)}
-          style={{
-            padding: '6px 10px',
-            fontSize: '13px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            outline: 'none',
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            color: '#333',
-          }}
-        >
-          <option value="">Company Name</option>
-          {uniqueCompanyNames.map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
-
-        {/* RSM Filter */}
-        <select
-          value={rsmFilter}
-          onChange={(e) => setRsmFilter(e.target.value)}
-          style={{
-            padding: '6px 10px',
-            fontSize: '13px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            outline: 'none',
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            color: '#333',
-          }}
-        >
-          <option value="">RSM</option>
-          {uniqueRsms.map(rsm => (
-            <option key={rsm} value={rsm}>{rsm}</option>
-          ))}
-        </select>
-
-        {/* Technician Code Filter */}
-        <select
-          value={technicianCodeFilter}
-          onChange={(e) => setTechnicianCodeFilter(e.target.value)}
-          style={{
-            padding: '6px 10px',
-            fontSize: '13px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            outline: 'none',
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            color: '#333',
-          }}
-        >
-          <option value="">Technician Code</option>
-          {uniqueTechnicianCodes.map(code => (
-            <option key={code} value={code}>{code}</option>
-          ))}
-        </select>
-
-        {/* Technician Name Filter */}
-        <select
-          value={technicianNameFilter}
-          onChange={(e) => setTechnicianNameFilter(e.target.value)}
-          style={{
-            padding: '6px 10px',
-            fontSize: '13px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            outline: 'none',
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            color: '#333',
-          }}
-        >
-          <option value="">Technician Name</option>
-          {uniqueTechnicianNames.map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
-
-        {/* Clear Filters Button */}
-        <button
-          onClick={clearFilters}
-          style={{
-            padding: '6px 12px',
-            fontSize: '13px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            backgroundColor: '#f44336',
-            color: 'white',
-            fontWeight: '500',
-            whiteSpace: 'nowrap',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f44336'}
-        >
-          Clear
-        </button>
-
-        {/* Export Button */}
-        <button
-          onClick={exportToExcel}
-          style={{
-            padding: '6px 12px',
-            fontSize: '13px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            fontWeight: '500',
-            marginLeft: 'auto',
-            whiteSpace: 'nowrap',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-        >
-          📊 Export Excel
-        </button>
       </div>
 
       <div className="overflow-x-auto">

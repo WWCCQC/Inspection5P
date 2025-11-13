@@ -33,6 +33,8 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   const [rsmFilter, setRsmFilter] = React.useState('');
   const [depotCodeFilter, setDepotCodeFilter] = React.useState('');
   const [depotNameFilter, setDepotNameFilter] = React.useState('');
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const rowsPerPage = 25;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['technicians-team', project],
@@ -185,6 +187,11 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
       return percentB - percentA; // descending order
     });
   }, [groupedData, providerFilter, rsmFilter, depotCodeFilter, depotNameFilter]);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [providerFilter, rsmFilter, depotCodeFilter, depotNameFilter]);
 
   // Get unique values for filters
   const uniqueProviders = React.useMemo(() => {
@@ -536,7 +543,10 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
               })}
             </tr>
             
-            {filteredGroupedData.map((row, rowIndex) => {
+            {/* Paginated Data Rows */}
+            {filteredGroupedData
+              .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+              .map((row, rowIndex) => {
               const target = Math.ceil(row.count * 0.2);
               const percentActual = target > 0 ? ((row.actual / target) * 100).toFixed(2) : '0.00';
               const percentPendingValue = target > 0 ? (row.pending / target) * 100 : 0;
@@ -589,6 +599,90 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div style={{
+        padding: '12px 16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTop: '1px solid #e5e7eb',
+      }}>
+        <div style={{ fontSize: '13px', color: '#666' }}>
+          Showing {Math.min((currentPage - 1) * rowsPerPage + 1, filteredGroupedData.length)} to {Math.min(currentPage * rowsPerPage, filteredGroupedData.length)} of {filteredGroupedData.length} entries
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              backgroundColor: currentPage === 1 ? '#f3f4f6' : 'white',
+              color: currentPage === 1 ? '#9ca3af' : '#374151',
+            }}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              backgroundColor: currentPage === 1 ? '#f3f4f6' : 'white',
+              color: currentPage === 1 ? '#9ca3af' : '#374151',
+            }}
+          >
+            Previous
+          </button>
+          <span style={{
+            padding: '6px 12px',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#374151',
+          }}>
+            Page {currentPage} of {Math.ceil(filteredGroupedData.length / rowsPerPage)}
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredGroupedData.length / rowsPerPage), prev + 1))}
+            disabled={currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage)}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? 'not-allowed' : 'pointer',
+              backgroundColor: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? '#f3f4f6' : 'white',
+              color: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? '#9ca3af' : '#374151',
+            }}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(Math.ceil(filteredGroupedData.length / rowsPerPage))}
+            disabled={currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage)}
+            style={{
+              padding: '6px 12px',
+              fontSize: '13px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              cursor: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? 'not-allowed' : 'pointer',
+              backgroundColor: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? '#f3f4f6' : 'white',
+              color: currentPage >= Math.ceil(filteredGroupedData.length / rowsPerPage) ? '#9ca3af' : '#374151',
+            }}
+          >
+            Last
+          </button>
+        </div>
       </div>
     </div>
   );

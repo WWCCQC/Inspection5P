@@ -108,22 +108,44 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
     },
   });
 
+  // คำนวณ Target (20% ของ Technician Team)
+  const target = Math.ceil(targetData.total * 0.2);
+
   // คำนวณเปอร์เซ็นต์ของ Actual
-  const percentage = targetData.heads > 0 
-    ? Math.round((actualData.count / targetData.heads) * 100) 
+  const percentage = target > 0 
+    ? Math.round((actualData.count / target) * 100) 
     : 0;
 
   // คำนวณ Pending = Target - Actual
-  const pending = Math.max(0, targetData.heads - actualData.count);
+  const pending = Math.max(0, target - actualData.count);
 
   // คำนวณเปอร์เซ็นต์ของ Pending
-  const pendingPercentage = targetData.heads > 0 
-    ? Math.round((pending / targetData.heads) * 100) 
+  const pendingPercentage = target > 0 
+    ? Math.round((pending / target) * 100) 
     : 0;
 
   return (
-    <div style={{ display: hideTarget ? 'flex' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(3, 1fr)', gap: '8px' }}>
-      {/* Target Card - Only show if not hideTarget */}
+    <div style={{ display: hideTarget ? 'flex' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(4, 1fr)', gap: '8px' }}>
+      {/* Technician Team Card - Only show if not hideTarget */}
+      {!hideTarget && (
+        <div 
+          style={{ 
+            backgroundColor: '#5c6bc0', 
+            color: 'white',
+            padding: '8px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontSize: '12px'
+          }}
+        >
+          <div>Technician Team</div>
+          <div style={{ fontWeight: '700', fontSize: '16px' }}>
+            {targetData.total.toLocaleString()}
+          </div>
+        </div>
+      )}
+
+      {/* Target Card (20% of Technician Team) - Only show if not hideTarget */}
       {!hideTarget && (
         <div 
           style={{ 
@@ -137,7 +159,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
         >
           <div>Target</div>
           <div style={{ fontWeight: '700', fontSize: '16px' }}>
-            {targetData.heads.toLocaleString()}
+            {target.toLocaleString()}
           </div>
         </div>
       )}

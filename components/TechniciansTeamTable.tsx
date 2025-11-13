@@ -135,7 +135,8 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
         ).size;
         
         const targetCount = new Set(techIdsForDepot).size;
-        const pendingCount = targetCount - actualCount;
+        const target = Math.ceil(targetCount * 0.2);
+        const pendingCount = target - actualCount;
         
         groups.set(key, {
           provider: tech.provider,
@@ -205,17 +206,21 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   // Export to Excel
   const exportToExcel = () => {
     // Transform data to include calculated columns
-    const dataForExport = filteredGroupedData.map(row => ({
-      'Provider': row.provider || '-',
-      'RSM': row.rsm || '-',
-      'Depot Code': row.depot_code,
-      'Depot Name': row.depot_name || '-',
-      'Technician Team (Total)': row.count,
-      'Actual': row.actual,
-      '%Actual': row.count > 0 ? ((row.actual / row.count) * 100).toFixed(2) + '%' : '0.00%',
-      'Pending': row.pending,
-      '%Pending': row.count > 0 ? ((row.pending / row.count) * 100).toFixed(2) + '%' : '0.00%',
-    }));
+    const dataForExport = filteredGroupedData.map(row => {
+      const target = Math.ceil(row.count * 0.2);
+      return {
+        'Provider': row.provider || '-',
+        'RSM': row.rsm || '-',
+        'Depot Code': row.depot_code,
+        'Depot Name': row.depot_name || '-',
+        'Technician Team (Total)': row.count,
+        'Target': target,
+        'Actual': row.actual,
+        '%Actual': target > 0 ? ((row.actual / target) * 100).toFixed(2) + '%' : '0.00%',
+        'Pending': row.pending,
+        '%Pending': target > 0 ? ((row.pending / target) * 100).toFixed(2) + '%' : '0.00%',
+      };
+    });
 
     const ws = XLSX.utils.json_to_sheet(dataForExport);
     const wb = XLSX.utils.book_new();
@@ -285,6 +290,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
     { header: 'Depot Code', key: 'depot_code' as const },
     { header: 'Depot Name', key: 'depot_name' as const },
     { header: 'Technician Team (Total)', key: 'count' as const },
+    { header: 'Target', key: 'target' as const },
     { header: 'Actual', key: 'actual' as const },
     { header: '%Actual', key: 'percentActual' as const },
     { header: 'Pending', key: 'pending' as const },
@@ -479,6 +485,13 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                 } else if (column.key === 'count') {
                   const total = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
                   cellValue = total.toLocaleString('en-US');
+                } else if (column.key === 'target') {
+                  // Sum of all Target values (not 20% of grand total)
+                  const totalTarget = filteredGroupedData.reduce((sum, row) => {
+                    const target = Math.ceil(row.count * 0.2);
+                    return sum + target;
+                  }, 0);
+                  cellValue = totalTarget.toLocaleString('en-US');
                 } else if (column.key === 'actual') {
                   const total = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0);
                   cellValue = total.toLocaleString('en-US');
@@ -486,14 +499,20 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                   const total = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0);
                   cellValue = total.toLocaleString('en-US');
                 } else if (column.key === 'percentActual') {
-                  const totalCount = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
+                  const totalTarget = filteredGroupedData.reduce((sum, row) => {
+                    const target = Math.ceil(row.count * 0.2);
+                    return sum + target;
+                  }, 0);
                   const totalActual = filteredGroupedData.reduce((sum, row) => sum + row.actual, 0);
-                  const percent = totalCount > 0 ? ((totalActual / totalCount) * 100).toFixed(2) : '0.00';
+                  const percent = totalTarget > 0 ? ((totalActual / totalTarget) * 100).toFixed(2) : '0.00';
                   cellValue = `${percent}%`;
                 } else if (column.key === 'percentPending') {
-                  const totalCount = filteredGroupedData.reduce((sum, row) => sum + row.count, 0);
+                  const totalTarget = filteredGroupedData.reduce((sum, row) => {
+                    const target = Math.ceil(row.count * 0.2);
+                    return sum + target;
+                  }, 0);
                   const totalPending = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0);
-                  const percent = totalCount > 0 ? ((totalPending / totalCount) * 100).toFixed(2) : '0.00';
+                  const percent = totalTarget > 0 ? ((totalPending / totalTarget) * 100).toFixed(2) : '0.00';
                   cellValue = `${percent}%`;
                 }
                 
@@ -506,7 +525,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                       whiteSpace: 'nowrap',
                       border: '1px solid #ddd',
                       backgroundColor: '#f0f0f0',
-                      textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') ? 'right' : 'left',
+                      textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') || column.key === 'target' ? 'right' : 'left',
                       fontWeight: '600',
                     }}
                   >
@@ -517,8 +536,9 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
             </tr>
             
             {filteredGroupedData.map((row, rowIndex) => {
-              const percentActual = row.count > 0 ? ((row.actual / row.count) * 100).toFixed(2) : '0.00';
-              const percentPending = row.count > 0 ? ((row.pending / row.count) * 100).toFixed(2) : '0.00';
+              const target = Math.ceil(row.count * 0.2);
+              const percentActual = target > 0 ? ((row.actual / target) * 100).toFixed(2) : '0.00';
+              const percentPending = target > 0 ? ((row.pending / target) * 100).toFixed(2) : '0.00';
               const percentActualNum = parseFloat(percentActual);
               const percentPendingNum = parseFloat(percentPending);
               
@@ -529,7 +549,11 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                     let bgColor = 'transparent';
                     let textColor = '#333';
                     
-                    if (column.key === 'percentActual') {
+                    if (column.key === 'target') {
+                      // Calculate 20% of count and round up
+                      const target = Math.ceil(row.count * 0.2);
+                      cellValue = target.toLocaleString('en-US');
+                    } else if (column.key === 'percentActual') {
                       cellValue = `${percentActual}%`;
                       bgColor = getGradientColor(percentActualNum, 'actual');
                       textColor = 'white';
@@ -550,7 +574,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                           whiteSpace: 'nowrap',
                           border: '1px solid #eee',
                           backgroundColor: bgColor,
-                          textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') ? 'right' : 'left',
+                          textAlign: column.key.includes('percent') || column.key.includes('count') || column.key.includes('actual') || column.key.includes('pending') || column.key === 'target' ? 'right' : 'left',
                           fontWeight: column.key.includes('percent') ? '600' : '400',
                         }}
                       >

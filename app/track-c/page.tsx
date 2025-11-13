@@ -172,12 +172,18 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   ];
 
   return (
-    <div className="space-y-6" style={{ marginTop: '40px' }}>
+    <div style={{ marginTop: '40px' }}>
       {/* 5P Technician Ranking Table */}
       <TechnicianRankingTable project="Track C" />
 
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
       {/* Technicians Team Table */}
       <TechniciansTeamTable project="Track C" />
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
 
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">

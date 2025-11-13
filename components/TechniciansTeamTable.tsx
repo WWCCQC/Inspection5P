@@ -136,7 +136,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
         
         const targetCount = new Set(techIdsForDepot).size;
         const target = Math.ceil(targetCount * 0.2);
-        const pendingCount = target - actualCount;
+        const pendingCount = Math.max(0, target - actualCount); // ป้องกันค่าติดลบ
         
         groups.set(key, {
           provider: tech.provider,
@@ -512,7 +512,8 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
                     return sum + target;
                   }, 0);
                   const totalPending = filteredGroupedData.reduce((sum, row) => sum + row.pending, 0);
-                  const percent = totalTarget > 0 ? ((totalPending / totalTarget) * 100).toFixed(2) : '0.00';
+                  const percentValue = totalTarget > 0 ? (totalPending / totalTarget) * 100 : 0;
+                  const percent = Math.max(0, percentValue).toFixed(2); // ป้องกันค่าติดลบ
                   cellValue = `${percent}%`;
                 }
                 
@@ -538,7 +539,8 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
             {filteredGroupedData.map((row, rowIndex) => {
               const target = Math.ceil(row.count * 0.2);
               const percentActual = target > 0 ? ((row.actual / target) * 100).toFixed(2) : '0.00';
-              const percentPending = target > 0 ? ((row.pending / target) * 100).toFixed(2) : '0.00';
+              const percentPendingValue = target > 0 ? (row.pending / target) * 100 : 0;
+              const percentPending = Math.max(0, percentPendingValue).toFixed(2); // ป้องกันค่าติดลบ
               const percentActualNum = parseFloat(percentActual);
               const percentPendingNum = parseFloat(percentPending);
               

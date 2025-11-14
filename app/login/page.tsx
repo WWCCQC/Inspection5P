@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { loginAction } from '../actions/auth'
 
 export default function LoginPage() {
   const [employeeId, setEmployeeId] = useState('');
@@ -25,17 +24,25 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const formData = new FormData();
-      formData.append('id', employeeId);
-      formData.append('password', password);
-      
-      const result = await loginAction(formData);
-      
-      if (result.success && result.redirectUrl) {
-        console.log('Login successful, redirecting to:', result.redirectUrl);
-        window.location.href = result.redirectUrl;
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: employeeId, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Redirect โดยใช้ router.push แทน window.location
+        const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
+          ? '/track-c' 
+          : '/track-rollout';
+        
+        // ใช้ router.replace เพื่อ force navigation
+        router.replace(redirectUrl);
       } else {
-        setError(result.message || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+        setError(data.error || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
       }
     } catch (err) {
       console.error('Login error:', err);

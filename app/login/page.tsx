@@ -42,20 +42,20 @@ export default function LoginPage() {
       if (response.ok) {
         console.log('Login successful, user:', data.user);
         
-        // Force redirect with full page reload
-        const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
-          ? '/track-c' 
-          : '/track-rollout';
+        // เช็คว่า cookie ถูก set หรือไม่
+        console.log('All cookies:', document.cookie);
         
-        console.log('Redirecting to:', redirectUrl);
-        
-        // ลอง 3 วิธีเพื่อให้แน่ใจว่า redirect
-        try {
-          window.location.assign(redirectUrl);
-        } catch (e) {
-          console.error('assign failed:', e);
-          window.location.href = redirectUrl;
-        }
+        // รอให้ cookie ถูก set ก่อน redirect
+        setTimeout(() => {
+          console.log('Cookies after timeout:', document.cookie);
+          
+          const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
+            ? '/track-c' 
+            : '/track-rollout';
+          
+          console.log('Redirecting to:', redirectUrl);
+          window.location.replace(redirectUrl);
+        }, 100);
       } else {
         console.error('Login failed:', data);
         setError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');

@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
 
       return response;
     } else {
-      // Form submission - redirect
-      const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+      // Form submission - redirect with 303 (change POST to GET)
+      const response = NextResponse.redirect(new URL(redirectUrl, request.url), 303);
 
       response.cookies.set({
         name: 'auth_token',

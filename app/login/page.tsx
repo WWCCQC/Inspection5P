@@ -42,13 +42,13 @@ export default function LoginPage() {
       if (response.ok) {
         console.log('Login successful, user:', data.user);
         
-        // Redirect ตาม role ทันที
+        // Redirect ตาม role
         if (data.user.role === 'admin' || data.user.role === 'user1') {
           console.log('Redirecting to /track-c');
-          window.location.href = '/track-c';
+          router.push('/track-c');
         } else if (data.user.role === 'user2') {
           console.log('Redirecting to /track-rollout');
-          window.location.href = '/track-rollout';
+          router.push('/track-rollout');
         }
       } else {
         console.error('Login failed:', data);
@@ -64,6 +64,7 @@ export default function LoginPage() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSubmit(e as any);
     }
   };

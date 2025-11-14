@@ -1,49 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 export default function LoginPage() {
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   // Check for error in URL params
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    const urlError = params.get('error');
-    if (urlError && !error) {
-      if (urlError === 'invalid') {
-        setError('รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
-      } else {
-        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlError = params.get('error');
+      if (urlError) {
+        if (urlError === 'invalid') {
+          setError('รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+        } else {
+          setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+        }
       }
     }
-  }
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = (e: React.FormEvent) => {
     if (!employeeId || !password) {
+      e.preventDefault();
       setError('กรุณาใส่รหัสพนักงานและรหัสผ่าน');
       return;
     }
-
     setLoading(true);
-    setError('');
-
-    // Submit form using traditional method
-    const form = e.target as HTMLFormElement;
-    form.submit();
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSubmit(e as any);
-    }
+    // Let form submit naturally
   };
 
   return (

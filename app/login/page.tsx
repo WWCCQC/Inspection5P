@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -10,26 +10,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // เช็คว่า login แล้วหรือยัง
-  useEffect(() => {
-    checkAuthStatus();
-  }, []); // เพิ่ม empty dependency array เพื่อให้รันครั้งเดียว
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch('/api/auth/me');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user) {
-          console.log('Already authenticated, redirecting...');
-          window.location.href = '/track-c';
-          return;
-        }
-      }
-    } catch (error) {
-      console.log('Not authenticated');
-    }
-  };
+  // ลบ useEffect ที่เช็ค auth ออก เพราะ middleware จะจัดการให้แล้ว
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -311,6 +292,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmployeeId(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="กรุณาใส่รหัสพนักงาน"
+                autoComplete="username"
                 style={{
                   width: '100%',
                   padding: '14px 18px',
@@ -352,6 +334,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="กรุณาใส่รหัสผ่าน"
+                autoComplete="current-password"
                 style={{
                   width: '100%',
                   padding: '14px 18px',

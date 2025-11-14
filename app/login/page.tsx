@@ -1,7 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { loginAction } from '../actions/auth'
 
 export default function LoginPage() {
   const [employeeId, setEmployeeId] = useState('');
@@ -24,45 +25,21 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          id: employeeId,
-          password: password
-        }),
-      });
-
-      const data = await response.json();
-      console.log('Login response:', response.status, data);
-
-      if (response.ok) {
-        console.log('Login successful, user:', data.user);
-        
-        // เช็คว่า cookie ถูก set หรือไม่
-        console.log('All cookies:', document.cookie);
-        
-        // รอให้ cookie ถูก set ก่อน redirect
-        setTimeout(() => {
-          console.log('Cookies after timeout:', document.cookie);
-          
-          const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
-            ? '/track-c' 
-            : '/track-rollout';
-          
-          console.log('Redirecting to:', redirectUrl);
-          window.location.replace(redirectUrl);
-        }, 100);
+      const formData = new FormData();
+      formData.append('id', employeeId);
+      formData.append('password', password);
+      
+      const result = await loginAction(formData);
+      
+      if (result.success && result.redirectUrl) {
+        console.log('Login successful, redirecting to:', result.redirectUrl);
+        window.location.href = result.redirectUrl;
       } else {
-        console.error('Login failed:', data);
-        setError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+        setError(result.message || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     } finally {
       setLoading(false);
     }

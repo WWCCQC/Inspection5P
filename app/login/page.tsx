@@ -13,7 +13,7 @@ export default function LoginPage() {
   // เช็คว่า login แล้วหรือยัง
   useEffect(() => {
     checkAuthStatus();
-  }, []);
+  }, []); // เพิ่ม empty dependency array เพื่อให้รันครั้งเดียว
 
   const checkAuthStatus = async () => {
     try {

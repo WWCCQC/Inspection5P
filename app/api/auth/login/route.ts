@@ -7,12 +7,14 @@ const SECRET_KEY = new TextEncoder().encode(
 );
 
 export async function POST(request: NextRequest) {
+  console.log('=== LOGIN API CALLED - VERSION: SUPABASE ===');
   try {
     let id: string;
     let password: string;
 
     // Check content type - support both JSON and form data
     const contentType = request.headers.get('content-type') || '';
+    console.log('Content-Type:', contentType);
     
     if (contentType.includes('application/json')) {
       const body = await request.json();

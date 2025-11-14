@@ -1,7 +1,7 @@
 {
-  "/api/auth/login-form/route": "app/api/auth/login-form/route.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
   "/track-c/page": "app/track-c/page.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
   "/login/page": "app/login/page.js",
-  "/track-rollout/page": "app/track-rollout/page.js"
+  "/api/auth/login/route": "app/api/auth/login/route.js"
 }

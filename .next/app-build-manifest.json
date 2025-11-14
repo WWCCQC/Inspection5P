@@ -1,24 +1,19 @@
 {
   "pages": {
-    "/login/page": [
+    "/track-c/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/track-c/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/layout.js"
     ],
-    "/track-c/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/track-c/page.js"
-    ],
-    "/track-rollout/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/track-rollout/page.js"
+      "static/chunks/app/login/page.js"
     ]
   }
 }

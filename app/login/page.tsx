@@ -255,7 +255,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form action="/api/auth/login-form" method="POST" onSubmit={(e) => {
+          <form action="/api/auth/login" method="POST" onSubmit={(e) => {
             if (!employeeId || !password) {
               e.preventDefault();
               setError('กรุณาใส่รหัสพนักงานและรหัสผ่าน');

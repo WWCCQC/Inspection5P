@@ -37,22 +37,25 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
+      console.log('Login response:', response.status, data);
 
       if (response.ok) {
-        console.log('Login successful, redirecting...');
+        console.log('Login successful, user:', data.user);
         
-        // Redirect ตาม role
-        setTimeout(() => {
-          if (data.user.role === 'admin' || data.user.role === 'user1') {
-            window.location.replace('/track-c');
-          } else if (data.user.role === 'user2') {
-            window.location.replace('/track-rollout');
-          }
-        }, 500);
+        // Redirect ตาม role ทันที
+        if (data.user.role === 'admin' || data.user.role === 'user1') {
+          console.log('Redirecting to /track-c');
+          window.location.href = '/track-c';
+        } else if (data.user.role === 'user2') {
+          console.log('Redirecting to /track-rollout');
+          window.location.href = '/track-rollout';
+        }
       } else {
+        console.error('Login failed:', data);
         setError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import usersData from '@/data/users.json';
+import { supabase } from '@/lib/supabaseClient';
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
@@ -31,17 +31,16 @@ export async function POST(request: NextRequest) {
 
     console.log('Login attempt:', { id, passwordLength: password?.length, contentType });
 
-    console.log('Total users:', usersData.users.length);
+    // Query user from Supabase (table: public.login5p)
+    const { data: user, error } = await supabase
+      .from('login5p')
+      .select('*')
+      .eq('id', id)
+      .eq('password', password)
+      .single();
 
-    // ค้นหา user ที่ตรงกับ id และ password
-    const user = usersData.users.find(
-      (u: any) => u.id === id && u.password === password
-    );
-
-    console.log('User found:', !!user);
-
-    if (!user) {
-      console.log('Login failed for ID:', id);
+    if (error || !user) {
+      console.log('Login failed for ID:', id, error?.message);
       
       // Check if request is form submission (redirect) or JSON (return error)
       if (contentType.includes('application/json')) {

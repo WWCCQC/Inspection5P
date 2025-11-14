@@ -14,6 +14,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Redirect root (/) ไปหน้า Track C
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/track-c', request.url));
+  }
+
   // เช็ค auth token
   const token = request.cookies.get('auth_token');
 
@@ -27,9 +32,9 @@ export async function middleware(request: NextRequest) {
     const { payload } = await jwtVerify(token.value, SECRET_KEY);
     const role = payload.role as string;
 
-    // เช็คสิทธิ์การเข้าถึงหน้า
+    // เช็คสิทธิ์การเข้าถึงหน้า (มีแค่ 2 หน้า: Track C และ Track Rollout)
     const permissions: Record<string, string[]> = {
-      admin: ['/track-c', '/track-rollout', '/5p', '/debug'],
+      admin: ['/track-c', '/track-rollout'],
       user1: ['/track-c'],
       user2: ['/track-rollout'],
     };

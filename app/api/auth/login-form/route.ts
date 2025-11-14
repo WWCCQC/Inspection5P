@@ -13,21 +13,30 @@ export async function POST(request: NextRequest) {
     const id = formData.get('id') as string;
     const password = formData.get('password') as string;
 
+    console.log('Login attempt:', { id, passwordLength: password?.length });
+
     // อ่านข้อมูล users จากไฟล์
     const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
     const usersData = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
+
+    console.log('Total users:', usersData.users.length);
 
     // ค้นหา user ที่ตรงกับ id และ password
     const user = usersData.users.find(
       (u: any) => u.id === id && u.password === password
     );
 
+    console.log('User found:', !!user);
+
     if (!user) {
+      console.log('Login failed for ID:', id);
       // Redirect back to login with error
       const url = new URL('/login', request.url);
       url.searchParams.set('error', 'invalid');
       return NextResponse.redirect(url);
     }
+
+    console.log('Login successful for:', user.name);
 
     // สร้าง JWT token
     const token = await new SignJWT({ 

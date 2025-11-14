@@ -49,8 +49,13 @@ export default function LoginPage() {
         
         console.log('Redirecting to:', redirectUrl);
         
-        // ใช้ window.location.href เพื่อ force reload
-        window.location.href = redirectUrl;
+        // ลอง 3 วิธีเพื่อให้แน่ใจว่า redirect
+        try {
+          window.location.assign(redirectUrl);
+        } catch (e) {
+          console.error('assign failed:', e);
+          window.location.href = redirectUrl;
+        }
       } else {
         console.error('Login failed:', data);
         setError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');

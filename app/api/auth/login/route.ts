@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     console.log('Login attempt:', { id, passwordLength: password?.length, contentType });
 
     // Query user from Supabase (table: public.login5p)
+    console.log('Querying Supabase for user:', id);
     const { data: user, error } = await supabase
       .from('login5p')
       .select('*')
@@ -46,8 +47,10 @@ export async function POST(request: NextRequest) {
       .eq('password', password)
       .single();
 
+    console.log('Supabase query result:', { user: !!user, error: error?.message, errorDetails: error });
+
     if (error || !user) {
-      console.log('Login failed for ID:', id, error?.message);
+      console.log('Login failed for ID:', id, 'Error:', error?.message);
       
       // Check if request is form submission (redirect) or JSON (return error)
       if (contentType.includes('application/json')) {

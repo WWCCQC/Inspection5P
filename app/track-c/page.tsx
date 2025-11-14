@@ -6,6 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
 import TechniciansTeamTable from "@/components/TechniciansTeamTable";
 import TechnicianRankingTable from "@/components/TechnicianRankingTable";
+import TechnicianRankingBottomTable from "@/components/TechnicianRankingBottomTable";
 import WorstCodeSummaryTable from "@/components/WorstCodeSummaryTable";
 import WorstCodeChart from "@/components/WorstCodeChart";
 
@@ -175,8 +176,14 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   return (
     <div style={{ marginTop: '40px' }}>
-      {/* 5P Technician Ranking Table */}
+      {/* 5P Technician Ranking Table (Top 10) */}
       <TechnicianRankingTable project="Track C" />
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
+      {/* 5P Technician Ranking Table (Bottom 10) */}
+      <TechnicianRankingBottomTable project="Track C" />
 
       {/* Divider */}
       <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>

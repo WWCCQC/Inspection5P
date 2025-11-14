@@ -24,6 +24,7 @@ export default function LoginPage() {
     setError('');
 
     try {
+      console.log('Sending login request...');
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,23 +32,27 @@ export default function LoginPage() {
         body: JSON.stringify({ id: employeeId, password }),
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (response.ok && data.success) {
-        // Redirect โดยใช้ router.push แทน window.location
         const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
           ? '/track-c' 
           : '/track-rollout';
         
-        // ใช้ router.replace เพื่อ force navigation
-        router.replace(redirectUrl);
+        console.log('Login successful! Redirecting to:', redirectUrl);
+        
+        // Force full page reload to ensure cookie is set
+        window.location.href = redirectUrl;
       } else {
+        console.log('Login failed:', data.error);
         setError(data.error || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+        setLoading(false);
       }
     } catch (err) {
       console.error('Login error:', err);
       setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-    } finally {
       setLoading(false);
     }
   };

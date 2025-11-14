@@ -30,9 +30,18 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ id: employeeId, password }),
+        redirect: 'manual', // ไม่ให้ fetch auto-redirect
       });
 
       console.log('Response status:', response.status);
+
+      // ถ้า API redirect (status 307/302) ให้ follow ไป
+      if (response.type === 'opaqueredirect' || response.status === 307 || response.status === 302) {
+        console.log('Login successful! Following redirect...');
+        window.location.href = response.url || '/track-c';
+        return;
+      }
+
       const data = await response.json();
       console.log('Response data:', data);
 
@@ -42,8 +51,6 @@ export default function LoginPage() {
           : '/track-rollout';
         
         console.log('Login successful! Redirecting to:', redirectUrl);
-        
-        // Force full page reload to ensure cookie is set
         window.location.href = redirectUrl;
       } else {
         console.log('Login failed:', data.error);

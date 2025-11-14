@@ -37,26 +37,26 @@ export async function POST(request: NextRequest) {
       .setExpirationTime('8h')
       .sign(SECRET_KEY);
 
-    // สร้าง response พร้อม cookie
-    const response = NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        role: user.role,
-      },
-    });
+    // Determine redirect URL
+    const redirectUrl = (user.role === 'admin' || user.role === 'user1') 
+      ? '/track-c' 
+      : '/track-rollout'
 
-    // ตั้ง cookie
-    response.cookies.set('auth_token', token, {
+    // Create response with redirect
+    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+
+    // Set cookie
+    response.cookies.set({
+      name: 'auth_token',
+      value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 8, // 8 hours
       path: '/',
-    });
+    })
 
-    return response;
+    return response
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

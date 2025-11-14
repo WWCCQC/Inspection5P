@@ -10,7 +10,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ลบ useEffect ที่เช็ค auth ออก เพราะ middleware จะจัดการให้แล้ว
+  // Check for error in URL params
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const urlError = params.get('error');
+    if (urlError && !error) {
+      if (urlError === 'invalid') {
+        setError('รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+      } else {
+        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+      }
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,44 +34,9 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    try {
-      console.log('Sending login request...');
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ id: employeeId, password }),
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const data = await response.json();
-        console.log('Login failed:', data.error);
-        setError(data.error || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (data.success && data.redirectUrl) {
-        console.log('Login successful! Redirecting to:', data.redirectUrl);
-        
-        // รอให้ cookie ถูก set ก่อน redirect
-        setTimeout(() => {
-          window.location.href = data.redirectUrl;
-        }, 200);
-      } else {
-        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-      setLoading(false);
-    }
+    // Submit form using traditional method
+    const form = e.target as HTMLFormElement;
+    form.submit();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -279,7 +255,14 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form action="/api/auth/login-form" method="POST" onSubmit={(e) => {
+            if (!employeeId || !password) {
+              e.preventDefault();
+              setError('กรุณาใส่รหัสพนักงานและรหัสผ่าน');
+            } else {
+              setLoading(true);
+            }
+          }}>
             {/* Employee ID Input */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{
@@ -293,9 +276,9 @@ export default function LoginPage() {
               </label>
               <input
                 type="text"
+                name="id"
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="กรุณาใส่รหัสพนักงาน"
                 autoComplete="username"
                 style={{
@@ -335,9 +318,9 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="กรุณาใส่รหัสผ่าน"
                 autoComplete="current-password"
                 style={{

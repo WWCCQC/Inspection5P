@@ -42,16 +42,15 @@ export default function LoginPage() {
       if (response.ok) {
         console.log('Login successful, user:', data.user);
         
-        // รอให้ cookie ถูก set แล้วค่อย redirect
-        setTimeout(() => {
-          if (data.user.role === 'admin' || data.user.role === 'user1') {
-            console.log('Redirecting to /track-c');
-            window.location.replace('/track-c');
-          } else if (data.user.role === 'user2') {
-            console.log('Redirecting to /track-rollout');
-            window.location.replace('/track-rollout');
-          }
-        }, 100); // รอ 100ms ให้ cookie ถูก set
+        // Force redirect with full page reload
+        const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
+          ? '/track-c' 
+          : '/track-rollout';
+        
+        console.log('Redirecting to:', redirectUrl);
+        
+        // ใช้ window.location.href เพื่อ force reload
+        window.location.href = redirectUrl;
       } else {
         console.error('Login failed:', data);
         setError(data.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');

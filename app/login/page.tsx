@@ -30,31 +30,30 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ id: employeeId, password }),
-        redirect: 'manual', // ไม่ให้ fetch auto-redirect
       });
 
       console.log('Response status:', response.status);
 
-      // ถ้า API redirect (status 307/302) ให้ follow ไป
-      if (response.type === 'opaqueredirect' || response.status === 307 || response.status === 302) {
-        console.log('Login successful! Following redirect...');
-        window.location.href = response.url || '/track-c';
+      if (!response.ok) {
+        const data = await response.json();
+        console.log('Login failed:', data.error);
+        setError(data.error || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+        setLoading(false);
         return;
       }
 
       const data = await response.json();
       console.log('Response data:', data);
 
-      if (response.ok && data.success) {
-        const redirectUrl = (data.user.role === 'admin' || data.user.role === 'user1') 
-          ? '/track-c' 
-          : '/track-rollout';
+      if (data.success && data.redirectUrl) {
+        console.log('Login successful! Redirecting to:', data.redirectUrl);
         
-        console.log('Login successful! Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
+        // รอให้ cookie ถูก set ก่อน redirect
+        setTimeout(() => {
+          window.location.href = data.redirectUrl;
+        }, 200);
       } else {
-        console.log('Login failed:', data.error);
-        setError(data.error || 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
         setLoading(false);
       }
     } catch (err) {

@@ -42,8 +42,16 @@ export async function POST(request: NextRequest) {
       ? '/track-c' 
       : '/track-rollout'
 
-    // Create response with redirect
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+    // Create response with user data and redirect URL
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      },
+      redirectUrl
+    })
 
     // Set cookie
     response.cookies.set({

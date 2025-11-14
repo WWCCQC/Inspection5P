@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
-import fs from 'fs';
-import path from 'path';
+import usersData from '@/data/users.json';
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
@@ -31,10 +30,6 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Login attempt:', { id, passwordLength: password?.length, contentType });
-
-    // อ่านข้อมูล users จากไฟล์
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-    const usersData = JSON.parse(fs.readFileSync(usersFilePath, 'utf-8'));
 
     console.log('Total users:', usersData.users.length);
 

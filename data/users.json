@@ -1,0 +1,58 @@
+{
+  "users": [
+    {
+      "id": "01011788",
+      "name": "Pathom Lerkchalerm",
+      "password": "Admin@11788",
+      "role": "admin"
+    },
+    {
+      "id": "01025343",
+      "name": "Sopida Molpichai",
+      "password": "Admin@25343",
+      "role": "admin"
+    },
+    {
+      "id": "01031192",
+      "name": "Boonyaporn Suppanakorn",
+      "password": "Admin@31192",
+      "role": "admin"
+    },
+    {
+      "id": "01025342",
+      "name": "Surudee Lawphinmanee",
+      "password": "Admin@25342",
+      "role": "admin"
+    },
+    {
+      "id": "01004357",
+      "name": "Natcha Wijitrjitlers",
+      "password": "Admin@04357",
+      "role": "admin"
+    },
+    {
+      "id": "01017705",
+      "name": "Nawaphon Yoadsodsai",
+      "password": "01017705Na",
+      "role": "user1"
+    },
+    {
+      "id": "01012031",
+      "name": "Narathip Samregsil",
+      "password": "01012031Na",
+      "role": "user1"
+    },
+    {
+      "id": "01025366",
+      "name": "Kreangkrai Kavekraison",
+      "password": "01025366Kr",
+      "role": "user1"
+    },
+    {
+      "id": "01014658",
+      "name": "Kittisak Wangwisitkul",
+      "password": "01014658Ki",
+      "role": "user2"
+    }
+  ]
+}

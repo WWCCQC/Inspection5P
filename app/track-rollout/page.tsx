@@ -579,10 +579,34 @@ function Content() {
 
   return (
     <div>
+      {/* Track Rollout-5P Technician Ranking (Top 10) */}
       <TechnicianRankingTableRollout />
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
+      {/* Track Rollout-5P Technician Ranking (Bottom 10) */}
       <TechnicianRankingBottomTableRollout />
-      <WorstCodeSummaryTableRollout />
-      <WorstCodeChartRollout />
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
+      {/* Track Rollout-5P Worst Code Summary Table & Chart (70% - 30%) */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ flex: '0 0 70%' }}>
+          <WorstCodeSummaryTableRollout />
+        </div>
+        {/* Vertical Divider */}
+        <div style={{ width: '1px', backgroundColor: '#d1d5db', flexShrink: 0 }}></div>
+        <div style={{ flex: '1' }}>
+          <WorstCodeChartRollout />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
+      {/* Main Data Table */}
       <DataTableComponent data={data || []} />
     </div>
   );
@@ -1071,6 +1095,16 @@ function WorstCodeSummaryTableRollout() {
 
       <div className="overflow-x-auto">
         <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+          <colgroup>
+            <col style={{ width: '5%' }} />
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '30%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '9%' }} />
+            <col style={{ width: '8%' }} />
+          </colgroup>
           <thead>
             <tr>
               {columns.map((column, index) => (
@@ -1097,32 +1131,44 @@ function WorstCodeSummaryTableRollout() {
                 {columns.map((column, colIndex) => {
                   let cellValue = '-';
                   let textAlign: 'left' | 'right' | 'center' = 'left';
+                  let cellStyle: React.CSSProperties = {
+                    padding: '8px',
+                    border: '1px solid #eee',
+                    textAlign,
+                  };
 
                   if (column.key === 'rank') {
                     cellValue = row.rank.toString();
                     textAlign = 'center';
+                    cellStyle.textAlign = 'center';
+                  } else if (column.key === 'item') {
+                    cellValue = (row[column.key] ?? '-').toString();
+                    cellStyle.whiteSpace = 'normal';
+                    cellStyle.wordBreak = 'break-word';
                   } else if (column.key === 'avg_score') {
                     cellValue = row.avg_score.toFixed(2);
                     textAlign = 'right';
+                    cellStyle.textAlign = 'right';
+                    cellStyle.whiteSpace = 'nowrap';
                   } else if (column.key === 'percent_critical') {
                     cellValue = `${row.percent_critical.toFixed(2)}%`;
                     textAlign = 'right';
+                    cellStyle.textAlign = 'right';
+                    cellStyle.whiteSpace = 'nowrap';
                   } else if (column.key === 'total_check' || column.key === 'critical_count') {
                     cellValue = row[column.key].toLocaleString('en-US');
                     textAlign = 'right';
+                    cellStyle.textAlign = 'right';
+                    cellStyle.whiteSpace = 'nowrap';
                   } else {
                     cellValue = (row[column.key] ?? '-').toString();
+                    cellStyle.whiteSpace = 'nowrap';
                   }
 
                   return (
                     <td
                       key={colIndex}
-                      style={{
-                        padding: '8px',
-                        whiteSpace: 'nowrap',
-                        border: '1px solid #eee',
-                        textAlign,
-                      }}
+                      style={cellStyle}
                     >
                       {cellValue}
                     </td>
@@ -1267,7 +1313,7 @@ function WorstCodeChartRollout() {
   };
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm overflow-hidden mb-6" style={{ height: '100%' }}>
+    <div className="bg-white rounded-lg border shadow-sm overflow-hidden" style={{ height: '100%' }}>
       <div style={{
         padding: '12px 16px',
         backgroundColor: '#5c6bc0',

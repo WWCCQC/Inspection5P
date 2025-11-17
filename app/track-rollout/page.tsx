@@ -649,8 +649,9 @@ function TechnicianRankingBottomTableRollout() {
   const rankingData: TechnicianRankingRow[] = React.useMemo(() => {
     if (!data || data.length === 0) return [];
 
+    // Group by Technician_Name instead of Technician_Code
     const technicianMap = new Map<string, {
-      technician_name: string;
+      technician_code: string;
       company_name: string;
       rsm: string;
       scores: number[];
@@ -663,15 +664,15 @@ function TechnicianRankingBottomTableRollout() {
     }>();
 
     data.forEach(item => {
-      const techCode = item.Technician_Code || '-';
+      const techName = item.Technician_Name || '-';
       const scoreValue = parseFloat(item.Score || '0');
       const score = isNaN(scoreValue) ? 0 : scoreValue;
       const p = item.P || '';
       const date = item.Date || '';
 
-      if (!technicianMap.has(techCode)) {
-        technicianMap.set(techCode, {
-          technician_name: item.Technician_Name || '-',
+      if (!technicianMap.has(techName)) {
+        technicianMap.set(techName, {
+          technician_code: item.Technician_Code || '-',
           company_name: item.Company_Name || '-',
           rsm: item.RSM || '-',
           scores: [],
@@ -684,7 +685,7 @@ function TechnicianRankingBottomTableRollout() {
         });
       }
 
-      const techData = technicianMap.get(techCode)!;
+      const techData = technicianMap.get(techName)!;
       techData.scores.push(score);
       techData.dates.push(date);
 
@@ -704,7 +705,7 @@ function TechnicianRankingBottomTableRollout() {
     const rankings: TechnicianRankingRow[] = [];
     const maxScorePerItem = 3;
 
-    technicianMap.forEach((techData, techCode) => {
+    technicianMap.forEach((techData, techName) => {
       const total_score = techData.scores.reduce((sum, score) => sum + (isNaN(score) ? 0 : score), 0);
       const total_items = techData.scores.length;
       const max_score = total_items * maxScorePerItem;
@@ -723,8 +724,8 @@ function TechnicianRankingBottomTableRollout() {
 
       rankings.push({
         rank: 0,
-        technician_code: techCode,
-        technician_name: techData.technician_name,
+        technician_code: techData.technician_code,
+        technician_name: techName,
         company_name: techData.company_name,
         rsm: techData.rsm,
         total_score,
@@ -785,7 +786,6 @@ function TechnicianRankingBottomTableRollout() {
 
   const columns = [
     { header: 'Rank', key: 'rank' as const },
-    { header: 'Technician_Code', key: 'technician_code' as const },
     { header: 'Technician_Name', key: 'technician_name' as const },
     { header: 'Company_Name', key: 'company_name' as const },
     { header: 'RSM', key: 'rsm' as const },
@@ -842,7 +842,6 @@ function TechnicianRankingBottomTableRollout() {
         <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '50px' }} />
-            <col style={{ width: '90px' }} />
             <col style={{ width: '130px' }} />
             <col style={{ width: '150px' }} />
             <col style={{ width: '100px' }} />
@@ -1396,9 +1395,9 @@ function TechnicianRankingTableRollout() {
   const rankingData: TechnicianRankingRow[] = React.useMemo(() => {
     if (!data || data.length === 0) return [];
 
-    // Group by Technician_Code
+    // Group by Technician_Name instead of Technician_Code
     const technicianMap = new Map<string, {
-      technician_name: string;
+      technician_code: string;
       company_name: string;
       rsm: string;
       scores: number[];
@@ -1411,15 +1410,15 @@ function TechnicianRankingTableRollout() {
     }>();
 
     data.forEach(item => {
-      const techCode = item.Technician_Code || '-';
+      const techName = item.Technician_Name || '-';
       const scoreValue = parseFloat(item.Score || '0');
       const score = isNaN(scoreValue) ? 0 : scoreValue;
       const p = item.P || '';
       const date = item.Date || '';
 
-      if (!technicianMap.has(techCode)) {
-        technicianMap.set(techCode, {
-          technician_name: item.Technician_Name || '-',
+      if (!technicianMap.has(techName)) {
+        technicianMap.set(techName, {
+          technician_code: item.Technician_Code || '-',
           company_name: item.Company_Name || '-',
           rsm: item.RSM || '-',
           scores: [],
@@ -1432,7 +1431,7 @@ function TechnicianRankingTableRollout() {
         });
       }
 
-      const techData = technicianMap.get(techCode)!;
+      const techData = technicianMap.get(techName)!;
       techData.scores.push(score);
       techData.dates.push(date);
 
@@ -1454,7 +1453,7 @@ function TechnicianRankingTableRollout() {
     const rankings: TechnicianRankingRow[] = [];
     const maxScorePerItem = 3; // คะแนนเต็มต่อข้อ
 
-    technicianMap.forEach((techData, techCode) => {
+    technicianMap.forEach((techData, techName) => {
       const total_score = techData.scores.reduce((sum, score) => sum + (isNaN(score) ? 0 : score), 0);
       const total_items = techData.scores.length;
       const max_score = total_items * maxScorePerItem;
@@ -1473,8 +1472,8 @@ function TechnicianRankingTableRollout() {
 
       rankings.push({
         rank: 0,
-        technician_code: techCode,
-        technician_name: techData.technician_name,
+        technician_code: techData.technician_code,
+        technician_name: techName,
         company_name: techData.company_name,
         rsm: techData.rsm,
         total_score,
@@ -1539,7 +1538,6 @@ function TechnicianRankingTableRollout() {
 
   const columns = [
     { header: 'Rank', key: 'rank' as const },
-    { header: 'Technician_Code', key: 'technician_code' as const },
     { header: 'Technician_Name', key: 'technician_name' as const },
     { header: 'Company_Name', key: 'company_name' as const },
     { header: 'RSM', key: 'rsm' as const },
@@ -1630,7 +1628,6 @@ function TechnicianRankingTableRollout() {
         <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '50px' }} />
-            <col style={{ width: '90px' }} />
             <col style={{ width: '130px' }} />
             <col style={{ width: '150px' }} />
             <col style={{ width: '100px' }} />

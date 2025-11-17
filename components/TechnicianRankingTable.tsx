@@ -272,7 +272,7 @@ const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) =
           fontWeight: '600',
           color: 'white',
         }}>
-          5P Technician Ranking (Top 10)
+          Track C-5P Technician Ranking (Top 10)
         </h3>
       </div>
 

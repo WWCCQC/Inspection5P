@@ -269,7 +269,7 @@ const TechnicianRankingBottomTable = ({ project }: TechnicianRankingBottomTableP
             fontWeight: '600',
             color: 'white',
           }}>
-            5P Technician Ranking (Bottom 10)
+            Track C-5P Technician Ranking (Bottom 10)
           </h3>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -295,7 +295,7 @@ const TechnicianRankingBottomTable = ({ project }: TechnicianRankingBottomTableP
             fontWeight: '600',
             color: 'white',
           }}>
-            5P Technician Ranking (Bottom 10)
+            Track C-5P Technician Ranking (Bottom 10)
           </h3>
         </div>
         <div className="flex items-center justify-center py-12">
@@ -321,7 +321,7 @@ const TechnicianRankingBottomTable = ({ project }: TechnicianRankingBottomTableP
           fontWeight: '600',
           color: 'white',
         }}>
-          5P Technician Ranking (Bottom 10)
+          Track C-5P Technician Ranking (Bottom 10)
         </h3>
       </div>
 

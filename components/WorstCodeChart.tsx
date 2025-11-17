@@ -176,7 +176,7 @@ const WorstCodeChart = ({ project }: WorstCodeChartProps = {}) => {
           fontSize: '16px',
         }}
       >
-        5P Worst Code Chart
+        Track C-5P Worst Code Chart
       </div>
       <div style={{ padding: '16px' }}>
         <ResponsiveContainer width="100%" height={600}>

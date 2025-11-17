@@ -228,7 +228,7 @@ const WorstCodeSummaryTable = ({ project }: WorstCodeSummaryTableProps = {}) => 
           fontWeight: '600',
           color: 'white',
         }}>
-          5P Worst Code Summary (Top 10)
+          Track C-5P Worst Code Summary (Top 10)
         </h3>
       </div>
 

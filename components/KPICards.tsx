@@ -5,11 +5,14 @@ import { supabase } from '@/lib/supabaseClient';
 
 interface Technician {
   workgroup_status: string;
+  depot_code: string;
+  tech_id: string;
 }
 
 interface TargetData {
   total: number;
   heads: number;
+  grandTotalTarget: number;
 }
 
 interface ActualData {
@@ -22,7 +25,7 @@ interface KPICardsProps {
 }
 
 const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) => {
-  const { data: targetData = { total: 0, heads: 0 } } = useQuery({
+  const { data: targetData = { total: 0, heads: 0, grandTotalTarget: 0 } } = useQuery({
     queryKey: ['targetCount'],
     queryFn: async () => {
       // ดึงทั้งหมดจากตาราง technicians โดยใช้ range เพื่อข้าม limit 1000
@@ -34,7 +37,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       while (true) {
         const { data, error } = await supabase
           .from('technicians')
-          .select('workgroup_status, depot_code')
+          .select('workgroup_status, depot_code, tech_id')
           .range(from, from + pageSize - 1);
         
         if (error) throw new Error(error.message);
@@ -51,16 +54,38 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       // Depot codes ที่ต้องแยกออก
       const excludedDepotCodes = ['PTT1-38', 'WW-BM-0093', 'WW-CR-1309'];
       
-      // นับจำนวนที่มี "หัวหน้า" และไม่อยู่ใน excluded list (ใช้สำหรับ Technician Team และ heads เหมือนกัน)
-      const teamCount = (allData as any[]).filter(item => {
+      // กรองเฉพาะช่างที่มี "หัวหน้า" และไม่อยู่ใน excluded list
+      const filteredTechnicians = (allData as any[]).filter(item => {
         const hasHeadTitle = (item.workgroup_status || '').includes('หัวหน้า');
         const isNotExcluded = !excludedDepotCodes.includes(item.depot_code);
         return hasHeadTitle && isNotExcluded;
-      }).length;
+      });
+      
+      const teamCount = filteredTechnicians.length;
+      
+      // คำนวณ Grand Total Target โดยจัดกลุ่มตาม depot_code
+      const depotGroups = new Map<string, Set<string>>();
+      
+      filteredTechnicians.forEach(tech => {
+        const depotCode = tech.depot_code || '';
+        if (!depotGroups.has(depotCode)) {
+          depotGroups.set(depotCode, new Set());
+        }
+        depotGroups.get(depotCode)!.add(tech.tech_id);
+      });
+      
+      // คำนวณ Target ของแต่ละ depot และรวมกัน
+      let grandTotalTarget = 0;
+      depotGroups.forEach((techIds) => {
+        const count = techIds.size;
+        const target = Math.ceil(count * 0.2);
+        grandTotalTarget += target;
+      });
       
       return {
         total: teamCount,
-        heads: teamCount
+        heads: teamCount,
+        grandTotalTarget: grandTotalTarget
       };
     },
   });
@@ -108,8 +133,8 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
     },
   });
 
-  // คำนวณ Target (20% ของ Technician Team)
-  const target = Math.ceil(targetData.total * 0.2);
+  // ใช้ Target จาก Grand Total ของแต่ละ depot (รวมกันแล้ว)
+  const target = targetData.grandTotalTarget;
 
   // คำนวณเปอร์เซ็นต์ของ Actual
   const percentage = target > 0 

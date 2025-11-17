@@ -8,13 +8,13 @@ import AverageScoreChart from './AverageScoreChart';
 const ChartsSection = () => {
   const pathname = usePathname();
 
-  // Show charts on Track C or Track Rollout page
-  if (pathname !== '/track-c' && pathname !== '/track-rollout') {
+  // Show charts only on Track C page
+  if (pathname !== '/track-c') {
     return null;
   }
 
   // Determine which project based on pathname
-  const project = pathname === '/track-rollout' ? 'Track Rollout' : 'Track C';
+  const project = 'Track C';
 
   return (
     <div style={{ marginTop: '20px', marginBottom: '60px' }}>
@@ -23,8 +23,8 @@ const ChartsSection = () => {
         {/* Daily Inspection Chart */}
         <DailyInspectionChart project={project} />
 
-        {/* RSM Inspection Chart - Only show on Track C */}
-        {pathname === '/track-c' && <RSMInspectionChart project={project} />}
+        {/* RSM Inspection Chart */}
+        <RSMInspectionChart project={project} />
 
         {/* Average Score Chart */}
         <AverageScoreChart project={project} />

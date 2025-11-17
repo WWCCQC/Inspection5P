@@ -5,6 +5,9 @@ import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import DailyInspectionChart from '@/components/DailyInspectionChart';
+import RSMInspectionChartRollout from '@/components/RSMInspectionChartRollout';
+import AverageScoreChart from '@/components/AverageScoreChart';
 
 type Row5P = {
   id: number;
@@ -579,6 +582,22 @@ function Content() {
 
   return (
     <div>
+      {/* Charts Section - 3 charts in one row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div>
+          <DailyInspectionChart project="Track Rollout" />
+        </div>
+        <div>
+          <RSMInspectionChartRollout />
+        </div>
+        <div>
+          <AverageScoreChart project="Track Rollout" />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
+
       {/* Track Rollout-5P Technician Ranking (Top 10) */}
       <TechnicianRankingTableRollout />
 

@@ -252,7 +252,6 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     { header: "Project", key: "Project" },
     { header: "Technician Code", key: "Technician_Code" },
     { header: "Technician Name", key: "Technician_Name" },
-    { header: "Company Code", key: "Company_Code" },
     { header: "Company Name", key: "Company_Name" },
     { header: "RSM", key: "RSM" },
     { header: "Site_ID/SOS_No.", key: "Site_ID/SOS_No." },

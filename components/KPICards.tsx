@@ -93,7 +93,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
   const { data: actualData = { count: 0 } } = useQuery({
     queryKey: ['actualCount', project],
     queryFn: async () => {
-      // ดึงข้อมูล Technician_Name, Date และ Project จากตาราง 5p
+      // ดึงข้อมูล Technician_Code, Date และ Project จากตาราง 5p
       let allData: any[] = [];
       let from = 0;
       const pageSize = 1000;
@@ -102,7 +102,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('Technician_Name, Date, Project')
+          .select('Technician_Code, Date, Project')
           .range(from, from + pageSize - 1);
         
         if (error) throw new Error(error.message);
@@ -116,14 +116,14 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
         from += pageSize;
       }
       
-      // นับจำนวน unique (Technician_Name, Date) pairs สำหรับ project ที่ระบุ
+      // นับจำนวน unique (Technician_Code, Date) pairs สำหรับ project ที่ระบุ
       const uniquePairs = new Set();
       allData.forEach((item) => {
         // Filter for specified project
         if (item.Project !== project) return;
         
-        if (item.Technician_Name && item.Date) {
-          uniquePairs.add(`${item.Technician_Name}|${item.Date}`);
+        if (item.Technician_Code && item.Date) {
+          uniquePairs.add(`${item.Technician_Code}|${item.Date}`);
         }
       });
       

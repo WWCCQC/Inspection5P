@@ -99,6 +99,13 @@ const TechnicianRankingTable = ({ project }: TechnicianRankingTableProps = {}) =
 
     data.forEach(item => {
       const techCode = item.Technician_Code || '-';
+      const scoreStr = (item.Score || '').toString().trim().toUpperCase();
+      
+      // Skip NA scores
+      if (!scoreStr || scoreStr === '' || scoreStr === 'NA' || scoreStr === 'N/A') {
+        return;
+      }
+      
       const scoreValue = parseFloat(item.Score || '0');
       const score = isNaN(scoreValue) ? 0 : scoreValue;
       const p = item.P || '';

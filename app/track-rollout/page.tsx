@@ -683,6 +683,13 @@ function TechnicianRankingBottomTableRollout() {
 
     data.forEach(item => {
       const techName = item.Technician_Name || '-';
+      const scoreStr = (item.Score || '').toString().trim().toUpperCase();
+      
+      // Skip NA, N/A, or empty scores
+      if (!scoreStr || scoreStr === '' || scoreStr === 'NA' || scoreStr === 'N/A') {
+        return;
+      }
+      
       const scoreValue = parseFloat(item.Score || '0');
       const score = isNaN(scoreValue) ? 0 : scoreValue;
       const p = item.P || '';
@@ -1429,6 +1436,13 @@ function TechnicianRankingTableRollout() {
 
     data.forEach(item => {
       const techName = item.Technician_Name || '-';
+      const scoreStr = (item.Score || '').toString().trim().toUpperCase();
+      
+      // Skip NA, N/A, or empty scores
+      if (!scoreStr || scoreStr === '' || scoreStr === 'NA' || scoreStr === 'N/A') {
+        return;
+      }
+      
       const scoreValue = parseFloat(item.Score || '0');
       const score = isNaN(scoreValue) ? 0 : scoreValue;
       const p = item.P || '';

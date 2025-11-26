@@ -8,19 +8,17 @@ const KPICardsWrapper = () => {
   const pathname = usePathname();
   const isTrackRollout = pathname === '/track-rollout';
 
-  // For Track Rollout: wrap KPI Cards and Project Cards in flex container
+  // For Track Rollout: show KPI Cards and Project Cards in Grid (4 columns)
   if (isTrackRollout) {
     return (
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
-        {/* KPI Cards */}
-        <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', width: '100%' }}>
+        {/* Actual Card */}
+        <div>
           <KPICards project="Track Rollout" hideTarget={true} />
         </div>
         
-        {/* Project Cards Inline - only on Track Rollout */}
-        <div style={{ flex: '1 1 auto' }}>
-          <ProjectCardsInlineWrapper />
-        </div>
+        {/* Project Cards (Civil, OFC, TE) - spread across 3 columns */}
+        <ProjectCardsInlineWrapper />
       </div>
     );
   }

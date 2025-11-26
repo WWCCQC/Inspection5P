@@ -12,8 +12,8 @@ export default function ProjectCardsInlineWrapper() {
   }
 
   return (
-    <div style={{ marginTop: '16px' }}>
+    <>
       <ProjectCardsSection variant="inline" />
-    </div>
+    </>
   );
 }

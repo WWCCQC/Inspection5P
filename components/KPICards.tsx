@@ -150,7 +150,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
     : 0;
 
   return (
-    <div style={{ display: hideTarget ? 'flex' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(4, 1fr)', gap: '8px' }}>
+    <div style={{ display: hideTarget ? 'contents' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(4, 1fr)', gap: hideTarget ? undefined : '8px' }}>
       {/* Technician Team Card - Only show if not hideTarget */}
       {!hideTarget && (
         <div 
@@ -194,16 +194,27 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
         style={{ 
           backgroundColor: '#0EAD69', 
           color: 'white',
-          padding: '8px',
+          padding: hideTarget ? '16px 12px' : '8px',
           borderRadius: '8px',
           textAlign: 'center',
-          fontSize: '12px',
-          minWidth: '140px',
-          flex: hideTarget ? '0 0 auto' : '1'
+          fontSize: hideTarget ? '18px' : '12px',
+          fontWeight: hideTarget ? '600' : 'normal',
+          cursor: hideTarget ? 'pointer' : 'default',
+          transition: hideTarget ? 'all 0.2s ease' : 'none',
+          boxShadow: hideTarget ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+          border: hideTarget ? '1px solid #0c8f59' : 'none',
         }}
+        onMouseEnter={hideTarget ? (e) => {
+          e.currentTarget.style.backgroundColor = '#0c8f59';
+          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+        } : undefined}
+        onMouseLeave={hideTarget ? (e) => {
+          e.currentTarget.style.backgroundColor = '#0EAD69';
+          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+        } : undefined}
       >
-        <div>Actual</div>
-        <div style={{ fontWeight: '700', fontSize: '16px' }}>
+        <div style={{ marginBottom: hideTarget ? '8px' : '0', fontSize: hideTarget ? '20px' : '12px' }}>Actual</div>
+        <div style={{ fontWeight: '700', fontSize: hideTarget ? '24px' : '16px' }}>
           {hideTarget ? actualData.count.toLocaleString() : `${actualData.count.toLocaleString()} (${percentage.toFixed(2)}%)`}
         </div>
       </div>

@@ -37,7 +37,7 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
         from += pageSize;
       }
       
-      // จัดกลุ่มตาม Civil, OFC, TE
+      // จัดกลุ่มตาม Civil, OFC, TE - นับ unique ตามชื่อช่าง + วันที่
       const civilTechs = new Set();
       const ofcTechs = new Set();
       const teTechs = new Set();
@@ -45,14 +45,18 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
       allData.forEach(item => {
         const typeOfWork = item['Type of work'];
         const techName = item.Technician_Name;
+        const date = item.Date;
         
-        if (typeOfWork && techName) {
+        if (typeOfWork && techName && date) {
+          // สร้าง unique key จากชื่อช่าง + วันที่
+          const uniqueKey = `${techName}_${date}`;
+          
           if (typeOfWork.startsWith('Civil')) {
-            civilTechs.add(techName);
+            civilTechs.add(uniqueKey);
           } else if (typeOfWork.startsWith('OFC')) {
-            ofcTechs.add(techName);
+            ofcTechs.add(uniqueKey);
           } else if (typeOfWork.startsWith('TE')) {
-            teTechs.add(techName);
+            teTechs.add(uniqueKey);
           }
         }
       });

@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import DailyInspectionChart from '@/components/DailyInspectionChart';
 import RSMInspectionChartRollout from '@/components/RSMInspectionChartRollout';
 import AverageScoreChart from '@/components/AverageScoreChart';
+import { ProjectFilterProvider, useProjectFilter } from './ProjectFilterContext';
 
 type Row5P = {
   id: number;
@@ -84,6 +85,7 @@ type WorstCodeChartData = {
 
 // Component สำหรับแสดงตาราง
 function DataTableComponent({ data }: { data: Row5P[] }) {
+  const { selectedProject } = useProjectFilter();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [companyNameFilter, setCompanyNameFilter] = React.useState("");
@@ -117,6 +119,15 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     let filtered = [...rows];
     
     // Filter for Track Rollout only
+    filtered = filtered.filter(row => row.Project === 'Track Rollout');
+    
+    // Filter by selectedProject (Civil, OFC, TE)
+    if (selectedProject !== 'All') {
+      filtered = filtered.filter(row => {
+        const typeOfWork = row['Type of work'];
+        return typeOfWork && typeOfWork.startsWith(selectedProject);
+      });
+    }
     filtered = filtered.filter(row => row.Project === 'Track Rollout');
     
     // Search filter
@@ -200,7 +211,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     });
     
     return filtered;
-  }, [rows, searchTerm, companyNameFilter, rsmFilter, scoreFilter, siteIdFilter, provinceFilter, typeOfWorkFilter]);
+  }, [rows, searchTerm, companyNameFilter, rsmFilter, scoreFilter, siteIdFilter, provinceFilter, typeOfWorkFilter, selectedProject]);
 
   // Pagination
   const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
@@ -631,9 +642,11 @@ function Content() {
 }
 
 // Component สำหรับแสดง Technician Ranking (Bottom 10) - Track Rollout only
+// Component สำหรับแสดง Technician Ranking (Bottom 10) - Track Rollout only
 function TechnicianRankingBottomTableRollout() {
+  const { selectedProject } = useProjectFilter();
   const { data, isLoading, error } = useQuery({
-    queryKey: ['technician-ranking-bottom-rollout'],
+    queryKey: ['technician-ranking-bottom-rollout', selectedProject],
     queryFn: async () => {
       let allData: FivePData[] = [];
       let page = 0;
@@ -643,7 +656,7 @@ function TechnicianRankingBottomTableRollout() {
       while (hasMore) {
         const { data: fivePData, error } = await supabase
           .from('5p')
-          .select('Technician_Code, Technician_Name, Company_Name, RSM, P, Score, Date')
+          .select('Technician_Code, Technician_Name, Company_Name, RSM, P, Score, Date, "Type of work"')
           .eq('Project', 'Track Rollout')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -682,6 +695,14 @@ function TechnicianRankingBottomTableRollout() {
     }>();
 
     data.forEach(item => {
+      // Filter by selectedProject
+      if (selectedProject !== 'All') {
+        const typeOfWork = (item as any)['Type of work'];
+        if (!typeOfWork || !typeOfWork.startsWith(selectedProject)) {
+          return;
+        }
+      }
+      
       const techName = item.Technician_Name || '-';
       const scoreStr = (item.Score || '').toString().trim().toUpperCase();
       
@@ -963,9 +984,11 @@ function TechnicianRankingBottomTableRollout() {
 }
 
 // Component สำหรับ Worst Code Summary (Top 10) - Track Rollout only  
+// Component สำหรับ Worst Code Summary (Top 10) - Track Rollout only  
 function WorstCodeSummaryTableRollout() {
+  const { selectedProject } = useProjectFilter();
   const { data, isLoading, error } = useQuery({
-    queryKey: ['worst-code-summary-rollout'],
+    queryKey: ['worst-code-summary-rollout', selectedProject],
     queryFn: async () => {
       let allData: FivePData[] = [];
       let page = 0;
@@ -975,7 +998,7 @@ function WorstCodeSummaryTableRollout() {
       while (hasMore) {
         const { data: fivePData, error } = await supabase
           .from('5p')
-          .select('Code, Item, P, Score')
+          .select('Code, Item, P, Score, "Type of work"')
           .eq('Project', 'Track Rollout')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -1006,6 +1029,14 @@ function WorstCodeSummaryTableRollout() {
     }>();
 
     data.forEach(item => {
+      // Filter by selectedProject
+      if (selectedProject !== 'All') {
+        const typeOfWork = (item as any)['Type of work'];
+        if (!typeOfWork || !typeOfWork.startsWith(selectedProject)) {
+          return;
+        }
+      }
+      
       const code = item.Code || '-';
       const scoreStr = (item.Score || '').toString().trim().toUpperCase();
       
@@ -1208,9 +1239,11 @@ function WorstCodeSummaryTableRollout() {
 }
 
 // Component สำหรับ Worst Code Chart - Track Rollout only
+// Component สำหรับ Worst Code Chart - Track Rollout only
 function WorstCodeChartRollout() {
+  const { selectedProject } = useProjectFilter();
   const { data, isLoading, error } = useQuery({
-    queryKey: ['worst-code-chart-rollout'],
+    queryKey: ['worst-code-chart-rollout', selectedProject],
     queryFn: async () => {
       let allData: any[] = [];
       let page = 0;
@@ -1220,7 +1253,7 @@ function WorstCodeChartRollout() {
       while (hasMore) {
         const { data: fivePData, error } = await supabase
           .from('5p')
-          .select('Code, Item, P, Score')
+          .select('Code, Item, P, Score, "Type of work"')
           .eq('Project', 'Track Rollout')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -1250,6 +1283,14 @@ function WorstCodeChartRollout() {
     }>();
 
     data.forEach((item: any) => {
+      // Filter by selectedProject
+      if (selectedProject !== 'All') {
+        const typeOfWork = item['Type of work'];
+        if (!typeOfWork || !typeOfWork.startsWith(selectedProject)) {
+          return;
+        }
+      }
+      
       const code = item.Code || '-';
       const scoreStr = (item.Score || '').toString().trim().toUpperCase();
       
@@ -1382,9 +1423,11 @@ function WorstCodeChartRollout() {
 }
 
 // Component สำหรับแสดง Technician Ranking (Top 10) - Track Rollout only
+// Component สำหรับแสดง Technician Ranking (Top 10) - Track Rollout only
 function TechnicianRankingTableRollout() {
+  const { selectedProject } = useProjectFilter();
   const { data, isLoading, error } = useQuery({
-    queryKey: ['technician-ranking-rollout'],
+    queryKey: ['technician-ranking-rollout', selectedProject],
     queryFn: async () => {
       let allData: FivePData[] = [];
       let page = 0;
@@ -1395,7 +1438,7 @@ function TechnicianRankingTableRollout() {
       while (hasMore) {
         const { data: fivePData, error } = await supabase
           .from('5p')
-          .select('Technician_Code, Technician_Name, Company_Name, RSM, P, Score, Date')
+          .select('Technician_Code, Technician_Name, Company_Name, RSM, P, Score, Date, "Type of work"')
           .eq('Project', 'Track Rollout')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
@@ -1435,6 +1478,14 @@ function TechnicianRankingTableRollout() {
     }>();
 
     data.forEach(item => {
+      // Filter by selectedProject
+      if (selectedProject !== 'All') {
+        const typeOfWork = (item as any)['Type of work'];
+        if (!typeOfWork || !typeOfWork.startsWith(selectedProject)) {
+          return;
+        }
+      }
+      
       const techName = item.Technician_Name || '-';
       const scoreStr = (item.Score || '').toString().trim().toUpperCase();
       

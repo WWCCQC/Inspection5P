@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { supabase } from '@/lib/supabaseClient';
+import { useProjectFilter } from '@/app/track-rollout/ProjectFilterContext';
 
 interface InspectionData {
   P: string;
@@ -32,8 +33,10 @@ const getColorByScore = (score: number): string => {
 };
 
 const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
+  const { selectedProject } = useProjectFilter();
+  
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['averageScoreByPillar', project],
+    queryKey: ['averageScoreByPillar', project, selectedProject],
     queryFn: async () => {
       // ดึงข้อมูล P, Score และ Project จากตาราง 5p
       let allData: any[] = [];
@@ -44,7 +47,7 @@ const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('P, Score, Project')
+          .select('P, Score, Project, "Type of work"')
           .eq('Project', project)
           .range(from, from + pageSize - 1);
         
@@ -57,6 +60,14 @@ const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
         if (data.length < pageSize) break;
         
         from += pageSize;
+      }
+      
+      // Filter by selectedProject if not 'All'
+      if (selectedProject !== 'All') {
+        allData = allData.filter(item => {
+          const typeOfWork = item['Type of work'];
+          return typeOfWork && typeOfWork.startsWith(selectedProject);
+        });
       }
       
       // จัดกลุ่มตามค่า P และคิดค่าเฉลี่ย Score

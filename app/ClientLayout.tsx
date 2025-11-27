@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ChartsSection from '@/components/ChartsSection';
 import KPICardsWrapper from '@/components/KPICardsWrapper';
+import { ProjectFilterProvider } from './track-rollout/ProjectFilterContext';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,7 +16,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   // หน้าอื่นๆ แสดงแบบปกติ
   return (
-    <>
+    <ProjectFilterProvider>
       <Navbar />
       <header className="bg-white border-b">
         <div className="mx-auto max-w-7xl px-6 py-3">
@@ -27,6 +28,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-6 py-6">{children}</main>
-    </>
+    </ProjectFilterProvider>
   );
 }

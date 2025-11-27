@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
+import { useProjectFilter } from '@/app/track-rollout/ProjectFilterContext';
 
 interface ProjectCardsSectionProps {
   variant?: 'inline' | 'full';
@@ -9,6 +10,7 @@ interface ProjectCardsSectionProps {
 
 const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => {
   const projects = ['Civil', 'OFC', 'TE'];
+  const { selectedProject, setSelectedProject } = useProjectFilter();
 
   // Query to get counts for each project type from 5p table
   const { data: projectCounts = {} } = useQuery({
@@ -85,37 +87,52 @@ const ProjectCardsSection = ({ variant = 'full' }: ProjectCardsSectionProps) => 
 
   return (
     <>
-      {projects.map((project) => (
-        <div
-          key={project}
-          style={{
-            backgroundColor: '#b2ebf2',
-            padding: '16px 12px',
-            borderRadius: '8px',
-            textAlign: 'center',
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#333',
-            border: '1px solid #80deea',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#80deea';
-            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#b2ebf2';
-            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-          }}
-        >
-          <div style={{ marginBottom: '8px', fontSize: '20px' }}>{project}</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#0EAD69' }}>
-            {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.count || 0} ({(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.percentage || 0}%)
+      {projects.map((project) => {
+        const isSelected = selectedProject === project;
+        const isAnySelected = selectedProject !== 'All';
+        
+        return (
+          <div
+            key={project}
+            onClick={() => {
+              // Toggle selection: click same card = deselect (All), click different = select
+              setSelectedProject(isSelected ? 'All' : project as 'Civil' | 'OFC' | 'TE');
+            }}
+            style={{
+              backgroundColor: isSelected ? '#0EAD69' : '#b2ebf2',
+              padding: '16px 12px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: isSelected ? '#fff' : '#333',
+              border: isSelected ? '2px solid #0EAD69' : '1px solid #80deea',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: isSelected ? '0 4px 12px rgba(14, 173, 105, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)',
+              opacity: isAnySelected && !isSelected ? 0.5 : 1,
+              transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+            }}
+            onMouseEnter={(e) => {
+              if (!isSelected) {
+                e.currentTarget.style.backgroundColor = '#80deea';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) {
+                e.currentTarget.style.backgroundColor = '#b2ebf2';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+              }
+            }}
+          >
+            <div style={{ marginBottom: '8px', fontSize: '20px' }}>{project}</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', color: isSelected ? '#fff' : '#0EAD69' }}>
+              {(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.count || 0} ({(projectCounts as Record<string, { count: number; percentage: number }>)[project]?.percentage || 0}%)
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 };

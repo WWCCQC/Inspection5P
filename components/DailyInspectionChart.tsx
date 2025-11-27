@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabaseClient';
+import { useProjectFilter } from '@/app/track-rollout/ProjectFilterContext';
 
 interface InspectionData {
   Date: string;
@@ -19,8 +20,10 @@ interface DailyInspectionChartProps {
 }
 
 const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps) => {
+  const { selectedProject } = useProjectFilter();
+  
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['dailyInspections', project],
+    queryKey: ['dailyInspections', project, selectedProject],
     queryFn: async () => {
       // Fetch ALL data with pagination to avoid 1000 record limit
       let allData: any[] = [];
@@ -30,7 +33,7 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('Date, Technician_Name, Project')
+          .select('Date, Technician_Name, Project, "Type of work"')
           .eq('Project', project)
           .range(from, from + pageSize - 1);
         
@@ -43,6 +46,14 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
         if (data.length < pageSize) break;
         
         from += pageSize;
+      }
+      
+      // Filter by selectedProject if not 'All'
+      if (selectedProject !== 'All') {
+        allData = allData.filter(item => {
+          const typeOfWork = item['Type of work'];
+          return typeOfWork && typeOfWork.startsWith(selectedProject);
+        });
       }
       
       // Group by date and count unique technician names

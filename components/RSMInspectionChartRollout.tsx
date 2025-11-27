@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabaseClient';
+import { useProjectFilter } from '@/app/track-rollout/ProjectFilterContext';
 
 interface InspectionData {
   RSM: string;
@@ -16,8 +17,10 @@ interface ChartData {
 }
 
 const RSMInspectionChartRollout = () => {
+  const { selectedProject } = useProjectFilter();
+  
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['rsmInspectionsRollout'],
+    queryKey: ['rsmInspectionsRollout', selectedProject],
     queryFn: async () => {
       // Fetch inspection data (Actual) from 5p table
       let allInspections: any[] = [];
@@ -27,7 +30,7 @@ const RSMInspectionChartRollout = () => {
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('RSM, Technician_Name, Date, Project')
+          .select('RSM, Technician_Name, Date, Project, "Type of work"')
           .eq('Project', 'Track Rollout')
           .range(from, from + pageSize - 1);
         
@@ -40,6 +43,14 @@ const RSMInspectionChartRollout = () => {
         if (data.length < pageSize) break;
         
         from += pageSize;
+      }
+      
+      // Filter by selectedProject if not 'All'
+      if (selectedProject !== 'All') {
+        allInspections = allInspections.filter(item => {
+          const typeOfWork = item['Type of work'];
+          return typeOfWork && typeOfWork.startsWith(selectedProject);
+        });
       }
       
       // Count actual (จำนวนการตรวจจริงแต่ละ RSM)

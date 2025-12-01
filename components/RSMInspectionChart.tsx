@@ -218,12 +218,16 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
               const target = dataPoint.target || 0;
               const percentage = target > 0 ? ((actual / target) * 100).toFixed(2) : '0.00';
               
+              // ตรวจสอบว่า actual สูงกว่า target หรือไม่
+              const isAboveTarget = actual > target;
+              const textColor = isAboveTarget ? '#0EAD69' : '#FFFFFF';
+              
               return (
                 <g>
                   <text
                     x={x}
                     y={y - 20}
-                    fill="#FFFFFF"
+                    fill={textColor}
                     fontSize={11}
                     fontWeight={700}
                     textAnchor="middle"
@@ -233,7 +237,7 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
                   <text
                     x={x}
                     y={y - 8}
-                    fill="#FFFFFF"
+                    fill={textColor}
                     fontSize={10}
                     fontWeight={600}
                     textAnchor="middle"

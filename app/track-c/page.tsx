@@ -48,7 +48,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
 
   const rows = data;
   
-  const rowsPerPage = 50;
+  const rowsPerPage = 20;
 
   // ฟังก์ชันแปลงรูปแบบ Date เป็น DD/MM/YYYY (ค.ศ.)
   const formatDate = (dateString: string | null) => {

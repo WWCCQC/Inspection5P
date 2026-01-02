@@ -1,4 +1,4 @@
 {
-  "/login/page": "app/login/page.js",
-  "/track-c/page": "app/track-c/page.js"
+  "/track-c/page": "app/track-c/page.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js"
 }

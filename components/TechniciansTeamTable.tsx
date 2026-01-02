@@ -34,7 +34,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   const [depotCodeFilter, setDepotCodeFilter] = React.useState('');
   const [depotNameFilter, setDepotNameFilter] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
-  const rowsPerPage = 25;
+  const rowsPerPage = 20;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['technicians-team', project],

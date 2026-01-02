@@ -89,7 +89,8 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
         return dateA.getTime() - dateB.getTime();
       });
       
-      return chartArray;
+      // Return only last 30 days
+      return chartArray.slice(-30);
     },
   });
 
@@ -146,7 +147,7 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
             dataKey="count"
             stroke="#0EAD69"
             strokeWidth={2}
-            dot={{ fill: '#0EAD69', r: 4 }}
+            dot={{ fill: '#0EAD69', r: 2 }}
             activeDot={{ r: 6 }}
             name="จำนวน"
             isAnimationActive={true}

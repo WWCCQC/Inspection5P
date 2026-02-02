@@ -8,7 +8,7 @@ import React from 'react';
 type Technician = {
   tech_id: string;
   provider: string | null;
-  rsm: string | null;
+  RBM: string | null;
   depot_code: string | null;
   depot_name: string | null;
   workgroup_status: string | null;
@@ -16,7 +16,7 @@ type Technician = {
 
 type GroupedRow = {
   provider: string | null;
-  rsm: string | null;
+  RBM: string | null;
   depot_code: string;
   depot_name: string | null;
   count: number;
@@ -48,7 +48,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
       while (hasMore) {
         const { data: techData, error } = await supabase
           .from('technicians')
-          .select('tech_id, provider, rsm, depot_code, depot_name, workgroup_status')
+          .select('tech_id, provider, RBM, depot_code, depot_name, workgroup_status')
           .range(page * pageSize, (page + 1) * pageSize - 1);
 
         if (error) {
@@ -142,7 +142,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
         
         groups.set(key, {
           provider: tech.provider,
-          rsm: tech.rsm,
+          RBM: tech.RBM,
           depot_code: tech.depot_code || '-',
           depot_name: tech.depot_name,
           count: targetCount,
@@ -152,16 +152,16 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
       }
     });
 
-    // Sort by rsm from low to high, then by depot_code alphanumerically
+    // Sort by RBM from low to high, then by depot_code alphanumerically
     return Array.from(groups.values()).sort((a, b) => {
-      const rsmA = a.rsm ? parseInt(a.rsm.replace(/[^\d]/g, ''), 10) : 0;
-      const rsmB = b.rsm ? parseInt(b.rsm.replace(/[^\d]/g, ''), 10) : 0;
+      const rbmA = a.RBM ? parseInt(a.RBM.replace(/[^\d]/g, ''), 10) : 0;
+      const rbmB = b.RBM ? parseInt(b.RBM.replace(/[^\d]/g, ''), 10) : 0;
       
-      if (rsmA !== rsmB) {
-        return rsmA - rsmB;
+      if (rbmA !== rbmB) {
+        return rbmA - rbmB;
       }
       
-      // If rsm is the same, sort by depot_code using natural sort
+      // If RBM is the same, sort by depot_code using natural sort
       const depotA = a.depot_code || '';
       const depotB = b.depot_code || '';
       
@@ -174,7 +174,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   const filteredGroupedData: GroupedRow[] = React.useMemo(() => {
     const filtered = groupedData.filter(row => {
       if (providerFilter && row.provider !== providerFilter) return false;
-      if (rsmFilter && row.rsm !== rsmFilter) return false;
+      if (rsmFilter && row.RBM !== rsmFilter) return false;
       if (depotCodeFilter && row.depot_code !== depotCodeFilter) return false;
       if (depotNameFilter && row.depot_name !== depotNameFilter) return false;
       return true;
@@ -199,7 +199,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
   }, [groupedData]);
 
   const uniqueRsms = React.useMemo(() => {
-    return Array.from(new Set(groupedData.map(row => row.rsm).filter(Boolean)));
+    return Array.from(new Set(groupedData.map(row => row.RBM).filter(Boolean)));
   }, [groupedData]);
 
   const uniqueDepotCodes = React.useMemo(() => {
@@ -217,7 +217,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
       const target = Math.ceil(row.count * 0.2);
       return {
         'Provider': row.provider || '-',
-        'RSM': row.rsm || '-',
+        'RBM': row.RBM || '-',
         'Depot Code': row.depot_code,
         'Depot Name': row.depot_name || '-',
         'Technician Team (Total)': row.count,
@@ -293,7 +293,7 @@ const TechniciansTeamTable = ({ project }: TechniciansTeamTableProps = {}) => {
 
   const columns = [
     { header: 'Provider', key: 'provider' as const },
-    { header: 'RSM', key: 'rsm' as const },
+    { header: 'RBM', key: 'RBM' as const },
     { header: 'Depot Code', key: 'depot_code' as const },
     { header: 'Depot Name', key: 'depot_name' as const },
     { header: 'Technician Team (Total)', key: 'count' as const },

@@ -54,7 +54,7 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
       while (true) {
         const { data: techData, error: techError } = await supabase
           .from('technicians')
-          .select('rsm, workgroup_status, depot_code')
+          .select('RBM, workgroup_status, depot_code')
           .range(techPage * pageSize, (techPage + 1) * pageSize - 1);
         
         if (techError) throw new Error(techError.message);
@@ -73,14 +73,14 @@ const RSMInspectionChart = ({ project = 'Track C' }: RSMInspectionChartProps) =>
       const targetByRSM: Record<string, number> = {};
       
       allTechnicians.forEach((tech) => {
-        if (tech.rsm && 
+        if (tech.RBM && 
             tech.workgroup_status && 
             tech.workgroup_status.includes('หัวหน้า') &&
             !excludedDepotCodes.includes(tech.depot_code || '')) {
-          if (!targetByRSM[tech.rsm]) {
-            targetByRSM[tech.rsm] = 0;
+          if (!targetByRSM[tech.RBM]) {
+            targetByRSM[tech.RBM] = 0;
           }
-          targetByRSM[tech.rsm]++;
+          targetByRSM[tech.RBM]++;
         }
       });
       

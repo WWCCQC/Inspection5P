@@ -4,11 +4,12 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ChartsSection from '@/components/ChartsSection';
 import KPICardsWrapper from '@/components/KPICardsWrapper';
+import ScoreCards from '@/components/ScoreCards';
 import { ProjectFilterProvider } from './track-rollout/ProjectFilterContext';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
+
   // ถ้าอยู่หน้า login ไม่ต้องแสดง Navbar และ Header
   if (pathname === '/login') {
     return <>{children}</>;
@@ -22,6 +23,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <div className="mx-auto max-w-7xl px-6 py-3">
           {/* KPI Cards and Project Cards - layout handled by KPICardsWrapper */}
           <KPICardsWrapper />
+
+          {/* Score Cards - only on Track C */}
+          <ScoreCards />
 
           {/* Charts Section - only on Track C */}
           <ChartsSection />

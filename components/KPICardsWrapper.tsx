@@ -23,7 +23,12 @@ const KPICardsWrapper = () => {
     );
   }
 
-  // For Track C: just show Actual card only
+  // For Track C: cards are handled by ScoreCards component
+  if (pathname === '/track-c') {
+    return null;
+  }
+
+  // Default: show KPI Cards normally
   return <KPICards project="Track C" hideTarget={true} />;
 };
 

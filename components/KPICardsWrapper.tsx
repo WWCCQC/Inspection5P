@@ -16,15 +16,15 @@ const KPICardsWrapper = () => {
         <div>
           <KPICards project="Track Rollout" hideTarget={true} />
         </div>
-        
+
         {/* Project Cards (Civil, OFC, TE) - spread across 3 columns */}
         <ProjectCardsInlineWrapper />
       </div>
     );
   }
 
-  // For Track C: just show KPI Cards normally (3 columns)
-  return <KPICards project="Track C" hideTarget={false} />;
+  // For Track C: just show Actual card only
+  return <KPICards project="Track C" hideTarget={true} />;
 };
 
 export default KPICardsWrapper;

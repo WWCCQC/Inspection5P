@@ -32,40 +32,40 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       let allData: Technician[] = [];
       let from = 0;
       const pageSize = 1000;
-      
+
       // วนลูปดึงข้อมูลทั้งหมด
       while (true) {
         const { data, error } = await supabase
           .from('technicians')
           .select('workgroup_status, depot_code, tech_id')
           .range(from, from + pageSize - 1);
-        
+
         if (error) throw new Error(error.message);
-        
+
         if (!data || data.length === 0) break;
-        
+
         allData = [...allData, ...data];
-        
+
         if (data.length < pageSize) break;
-        
+
         from += pageSize;
       }
-      
+
       // Depot codes ที่ต้องแยกออก
       const excludedDepotCodes = ['PTT1-38', 'WW-BM-0093', 'WW-CR-1309'];
-      
+
       // กรองเฉพาะช่างที่มี "หัวหน้า" และไม่อยู่ใน excluded list
       const filteredTechnicians = (allData as any[]).filter(item => {
         const hasHeadTitle = (item.workgroup_status || '').includes('หัวหน้า');
         const isNotExcluded = !excludedDepotCodes.includes(item.depot_code);
         return hasHeadTitle && isNotExcluded;
       });
-      
+
       const teamCount = filteredTechnicians.length;
-      
+
       // คำนวณ Grand Total Target โดยจัดกลุ่มตาม depot_code
       const depotGroups = new Map<string, Set<string>>();
-      
+
       filteredTechnicians.forEach(tech => {
         const depotCode = tech.depot_code || '';
         if (!depotGroups.has(depotCode)) {
@@ -73,7 +73,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
         }
         depotGroups.get(depotCode)!.add(tech.tech_id);
       });
-      
+
       // คำนวณ Target ของแต่ละ depot และรวมกัน
       let grandTotalTarget = 0;
       depotGroups.forEach((techIds) => {
@@ -81,7 +81,7 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
         const target = Math.ceil(count * 0.2);
         grandTotalTarget += target;
       });
-      
+
       return {
         total: teamCount,
         heads: teamCount,
@@ -93,40 +93,43 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
   const { data: actualData = { count: 0 } } = useQuery({
     queryKey: ['actualCount', project],
     queryFn: async () => {
-      // ดึงข้อมูล Technician_Name, Date และ Project จากตาราง 5p
+      // ดึงข้อมูล Technician_Code และ Date จากตาราง 5p (ตรงกับกราฟ Inspection RBM by month)
       let allData: any[] = [];
       let from = 0;
       const pageSize = 1000;
-      
+
       // วนลูปดึงข้อมูลทั้งหมด
       while (true) {
         const { data, error } = await supabase
           .from('5p')
-          .select('Technician_Name, Date, Project')
+          .select('Technician_Code, Date')
+          .eq('Project', project)
           .range(from, from + pageSize - 1);
-        
+
         if (error) throw new Error(error.message);
-        
+
         if (!data || data.length === 0) break;
-        
+
         allData = [...allData, ...data];
-        
+
         if (data.length < pageSize) break;
-        
+
         from += pageSize;
       }
-      
-      // นับจำนวน unique (Technician_Name, Date) pairs สำหรับ project ที่ระบุ
+
+      // นับจำนวน unique (Date + Technician_Code) — ตรงกับกราฟ Inspection RBM by month
       const uniquePairs = new Set();
       allData.forEach((item) => {
-        // Filter for specified project
-        if (item.Project !== project) return;
-        
-        if (item.Technician_Name && item.Date) {
-          uniquePairs.add(`${item.Technician_Name}|${item.Date}`);
+        if (item.Technician_Code && item.Date) {
+          const dateObj = new Date(item.Date);
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const year = dateObj.getFullYear();
+          const uniqueKey = `${year}-${month}-${day}|${item.Technician_Code}`;
+          uniquePairs.add(uniqueKey);
         }
       });
-      
+
       return {
         count: uniquePairs.size
       };
@@ -137,25 +140,25 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
   const target = targetData.grandTotalTarget;
 
   // คำนวณเปอร์เซ็นต์ของ Actual
-  const percentage = target > 0 
-    ? Math.round((actualData.count / target) * 100) 
+  const percentage = target > 0
+    ? Math.round((actualData.count / target) * 100)
     : 0;
 
   // คำนวณ Pending = Target - Actual
   const pending = Math.max(0, target - actualData.count);
 
   // คำนวณเปอร์เซ็นต์ของ Pending
-  const pendingPercentage = target > 0 
-    ? Math.round((pending / target) * 100) 
+  const pendingPercentage = target > 0
+    ? Math.round((pending / target) * 100)
     : 0;
 
   return (
     <div style={{ display: hideTarget ? 'contents' : 'grid', gridTemplateColumns: hideTarget ? undefined : 'repeat(4, 1fr)', gap: hideTarget ? undefined : '8px' }}>
       {/* Technician Team Card - Only show if not hideTarget */}
       {!hideTarget && (
-        <div 
-          style={{ 
-            backgroundColor: '#5c6bc0', 
+        <div
+          style={{
+            backgroundColor: '#5c6bc0',
             color: 'white',
             padding: '8px',
             borderRadius: '8px',
@@ -172,9 +175,9 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
 
       {/* Target Card (20% of Technician Team) - Only show if not hideTarget */}
       {!hideTarget && (
-        <div 
-          style={{ 
-            backgroundColor: '#203864', 
+        <div
+          style={{
+            backgroundColor: '#203864',
             color: 'white',
             padding: '8px',
             borderRadius: '8px',
@@ -190,9 +193,9 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
       )}
 
       {/* Actual Card */}
-      <div 
-        style={{ 
-          backgroundColor: '#0EAD69', 
+      <div
+        style={{
+          backgroundColor: '#0EAD69',
           color: 'white',
           padding: hideTarget ? '16px 12px' : '8px',
           borderRadius: '8px',
@@ -221,9 +224,9 @@ const KPICards = ({ project = 'Track C', hideTarget = false }: KPICardsProps) =>
 
       {/* Pending Card - Only show if not hideTarget */}
       {!hideTarget && (
-        <div 
-          style={{ 
-            backgroundColor: '#D90429', 
+        <div
+          style={{
+            backgroundColor: '#D90429',
             color: 'white',
             padding: '8px',
             borderRadius: '8px',

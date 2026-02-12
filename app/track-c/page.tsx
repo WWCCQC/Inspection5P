@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import type { ColumnDef } from "@tanstack/react-table";
 import * as XLSX from 'xlsx';
-import TechniciansTeamTable from "@/components/TechniciansTeamTable";
+
 import TechnicianRankingTable from "@/components/TechnicianRankingTable";
 import TechnicianRankingBottomTable from "@/components/TechnicianRankingBottomTable";
 import WorstCodeSummaryTable from "@/components/WorstCodeSummaryTable";
@@ -47,7 +47,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   const [searchBorderColor, setSearchBorderColor] = React.useState("#e5e7eb");
 
   const rows = data;
-  
+
   const rowsPerPage = 20;
 
   // ฟังก์ชันแปลงรูปแบบ Date เป็น DD/MM/YYYY (ค.ศ.)
@@ -67,10 +67,10 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   // Filter และ search ข้อมูล
   const filteredRows = React.useMemo(() => {
     let filtered = [...rows];
-    
+
     // Filter for Track C only
     filtered = filtered.filter(row => row.Project === 'Track C');
-    
+
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(row =>
@@ -79,17 +79,17 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
         )
       );
     }
-    
+
     // Company Code filter
     if (companyCodeFilter) {
       filtered = filtered.filter(row => row.Company_Code === companyCodeFilter);
     }
-    
+
     // Company Name filter
     if (companyNameFilter) {
       filtered = filtered.filter(row => row.Company_Name === companyNameFilter);
     }
-    
+
     // RSM filter  
     if (rsmFilter) {
       filtered = filtered.filter(row => row.RSM === rsmFilter);
@@ -99,33 +99,33 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
     if (scoreFilter) {
       filtered = filtered.filter(row => row.Score === scoreFilter);
     }
-    
+
     // Sort by Date descending (newest first), then by Technician_Code, then by Code ascending
     filtered.sort((a, b) => {
       const dateA = a.Date ? new Date(a.Date).getTime() : 0;
       const dateB = b.Date ? new Date(b.Date).getTime() : 0;
-      
+
       // First sort by date (descending - newest first)
       if (dateB !== dateA) {
         return dateB - dateA;
       }
-      
+
       // If dates are equal, sort by Technician_Code (ascending)
       const techCodeA = a.Technician_Code || '';
       const techCodeB = b.Technician_Code || '';
-      
+
       if (techCodeA !== techCodeB) {
         return techCodeA.localeCompare(techCodeB, undefined, { numeric: true, sensitivity: 'base' });
       }
-      
+
       // If Technician_Code is also equal, sort by Code (ascending)
       const codeA = a.Code || '';
       const codeB = b.Code || '';
-      
+
       // Natural sort for codes like 1.1, 1.2, 2.1, etc.
       return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
     });
-    
+
     return filtered;
   }, [rows, searchTerm, companyCodeFilter, companyNameFilter, rsmFilter, scoreFilter]);
 
@@ -138,11 +138,11 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
   const uniqueCompanyCodes = React.useMemo(() => {
     return Array.from(new Set(rows.map(row => row?.Company_Code).filter(Boolean)));
   }, [rows]);
-  
+
   const uniqueCompanyNames = React.useMemo(() => {
     return Array.from(new Set(rows.map(row => row?.Company_Name).filter(Boolean)));
   }, [rows]);
-  
+
   const uniqueRSMs = React.useMemo(() => {
     return Array.from(new Set(rows.map(row => row?.RSM).filter(Boolean)));
   }, [rows]);
@@ -203,16 +203,10 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
       {/* Divider */}
       <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
 
-      {/* Technicians Team Table */}
-      <TechniciansTeamTable project="Track C" />
-
-      {/* Divider */}
-      <div style={{ height: '3px', backgroundColor: '#5c6bc0', margin: '24px 0' }}></div>
-
       {/* Table Section */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         {/* 5P Survey Header with Filters */}
-        <div 
+        <div
           style={{
             padding: '12px 16px',
             backgroundColor: '#5c6bc0',
@@ -227,7 +221,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
           }}
         >
           <span style={{ minWidth: '80px' }}>5P Survey</span>
-          
+
           {/* Search Input */}
           <input
             type="text"
@@ -362,9 +356,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             <thead>
               <tr>
                 {columns.map((column, index) => (
-                  <th 
-                    key={index} 
-                    style={{ 
+                  <th
+                    key={index}
+                    style={{
                       padding: '6px 8px',
                       textAlign: 'left',
                       fontWeight: '600',
@@ -387,9 +381,9 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
               {paginatedRows.map((row, rowIndex) => (
                 <tr key={row.id || rowIndex}>
                   {columns.map((column, colIndex) => (
-                    <td 
-                      key={colIndex} 
-                      style={{ 
+                    <td
+                      key={colIndex}
+                      style={{
                         padding: '6px 8px',
                         color: '#333',
                         whiteSpace: 'nowrap',
@@ -400,7 +394,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
                         textOverflow: column.key === 'Item' ? 'ellipsis' : 'clip'
                       }}
                     >
-                      {column.key === 'Date' 
+                      {column.key === 'Date'
                         ? formatDate(row[column.key as keyof Row5P] as string)
                         : (row[column.key as keyof Row5P] || '-')
                       }
@@ -417,7 +411,7 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
           <div className="text-sm text-gray-700">
             แสดง {startIndex + 1}-{Math.min(startIndex + rowsPerPage, filteredRows.length)} จาก {filteredRows.length} รายการ
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -426,11 +420,11 @@ function DataTableComponent({ data }: { data: Row5P[] }) {
             >
               ก่อนหน้า
             </button>
-            
+
             <span className="text-sm">
               หน้า {currentPage} จาก {totalPages}
             </span>
-            
+
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}

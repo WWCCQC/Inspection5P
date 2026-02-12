@@ -21,7 +21,7 @@ interface DailyInspectionChartProps {
 
 const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps) => {
   const { selectedProject } = useProjectFilter();
-  
+
   const { data: chartData, isLoading, error } = useQuery({
     queryKey: ['dailyInspections', project, selectedProject],
     queryFn: async () => {
@@ -29,25 +29,25 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
       let allData: any[] = [];
       let from = 0;
       const pageSize = 1000;
-      
+
       while (true) {
         const { data, error } = await supabase
           .from('5p')
           .select('Date, Technician_Name, Project, "Type of work"')
           .eq('Project', project)
           .range(from, from + pageSize - 1);
-        
+
         if (error) throw new Error(error.message);
-        
+
         if (!data || data.length === 0) break;
-        
+
         allData = [...allData, ...data];
-        
+
         if (data.length < pageSize) break;
-        
+
         from += pageSize;
       }
-      
+
       // Filter by selectedProject if not 'All'
       if (selectedProject !== 'All') {
         allData = allData.filter(item => {
@@ -55,10 +55,10 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
           return typeOfWork && typeOfWork.startsWith(selectedProject);
         });
       }
-      
+
       // Group by date and count unique technician names
       const groupedData: Record<string, Set<string>> = {};
-      
+
       allData.forEach((item) => {
         if (item.Date && item.Technician_Name) {
           // Parse date and format as DD/MM/YYYY (AD/Gregorian calendar)
@@ -67,7 +67,7 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
           const month = String(dateObj.getMonth() + 1).padStart(2, '0');
           const year = dateObj.getFullYear();
           const formattedDate = `${day}/${month}/${year}`;
-          
+
           // Use Set to store unique technician names
           if (!groupedData[formattedDate]) {
             groupedData[formattedDate] = new Set();
@@ -75,22 +75,29 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
           groupedData[formattedDate].add(item.Technician_Name);
         }
       });
-      
+
       // Convert to array with count of unique technician names
       const chartArray: ChartData[] = Object.entries(groupedData).map(([date, technicianSet]) => ({
         date,
         count: technicianSet.size,
       }));
-      
+
       // Sort by date (convert back to Date object for sorting)
       chartArray.sort((a, b) => {
         const dateA = new Date(a.date.split('/').reverse().join('-'));
         const dateB = new Date(b.date.split('/').reverse().join('-'));
         return dateA.getTime() - dateB.getTime();
       });
-      
-      // Return only last 30 days
-      return chartArray.slice(-30);
+
+      // Filter only current month
+      const now = new Date();
+      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+      const currentYear = String(now.getFullYear());
+
+      return chartArray.filter((item) => {
+        const [, month, year] = item.date.split('/');
+        return month === currentMonth && year === currentYear;
+      });
     },
   });
 

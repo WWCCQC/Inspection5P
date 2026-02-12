@@ -97,7 +97,7 @@ const AverageScoreChart = ({ project = 'Track C' }: AverageScoreChartProps) => {
   return (
     <div style={{ width: '100%', height: 280, marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
-        <span style={{ color: '#333' }}>Inspection RBM by RSM</span>
+        <span style={{ color: '#333' }}>Inspection 5P by RBM</span>
       </h3>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart

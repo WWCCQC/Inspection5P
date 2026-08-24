@@ -89,14 +89,17 @@ const DailyInspectionChart = ({ project = 'Track C' }: DailyInspectionChartProps
         return dateA.getTime() - dateB.getTime();
       });
 
-      // Filter only current month
-      const now = new Date();
-      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-      const currentYear = String(now.getFullYear());
+      // Filter only the latest month that actually has data
+      // (avoids showing an empty chart when the device clock's current
+      // month has no records yet)
+      if (chartArray.length === 0) return chartArray;
+
+      const latest = chartArray[chartArray.length - 1];
+      const [, latestMonth, latestYear] = latest.date.split('/');
 
       return chartArray.filter((item) => {
         const [, month, year] = item.date.split('/');
-        return month === currentMonth && year === currentYear;
+        return month === latestMonth && year === latestYear;
       });
     },
   });

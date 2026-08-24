@@ -158,7 +158,7 @@ const Navbar = () => {
       {/* Live Clock - positioned on the right */}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
         <LiveClock />
-        
+
         {userName && (
           <>
             {/* User Name */}
